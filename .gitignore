@@ -1,0 +1,6 @@
+backups/
+*.pdf
+*.docx
+PROMPT.txt
+.DS_Store
+Thumbs.db

@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arraiá Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-scale: 1;
+      --black: #0d0d0d;
+      --paper: #f5f0e8;
+      --card: #fffaf2;
+      --line: #ddd3c5;
+      --red: #cf3a17;
+      --orange: #e1681b;
+      --yellow: #d99a16;
+      --text: #241f1b;
+      --muted: #746d64;
+    }
+
+    html {
+      font-size: calc(16px * var(--font-scale));
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 18%, rgba(225, 104, 27, 0.10), transparent 17rem),
+        radial-gradient(circle at 92% 72%, rgba(217, 154, 22, 0.14), transparent 18rem),
+        linear-gradient(180deg, rgba(245, 240, 232, 0.72), rgba(245, 240, 232, 0.90)),
+        url("assets/arraia-digital-fundo.png") center top / cover fixed no-repeat,
+        var(--paper);
+      font-family: "DM Sans", sans-serif;
+    }
+
+    body.high-contrast {
+      --paper: #020617;
+      --card: #111827;
+      --line: #fbbf24;
+      --text: #f8fafc;
+      --muted: #e5e7eb;
+      background: var(--paper);
+    }
+
+    h1,
+    h2,
+    h3,
+    .brand {
+      font-family: "Playfair Display", serif;
+    }
+
+    .screen {
+      display: none;
+      animation: enter 180ms ease-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes enter {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .focusable:focus {
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(225, 104, 27, 0.35);
+    }
+
+    .topbar {
+      background: var(--black);
+      color: white;
+    }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.93), rgba(255, 250, 242, 0.94)),
+        radial-gradient(circle at 3% 92%, rgba(14, 165, 233, 0.11), transparent 10rem),
+        radial-gradient(circle at 96% 5%, rgba(225, 104, 27, 0.13), transparent 12rem),
+        var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      box-shadow: 0 10px 26px rgba(36, 31, 27, 0.08);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.28;
+      background:
+        linear-gradient(118deg, transparent 0 18%, rgba(207, 58, 23, 0.30) 18% 22%, transparent 22% 29%, rgba(217, 154, 22, 0.34) 29% 33%, transparent 33% 100%) top left / 360px 120px no-repeat,
+        linear-gradient(298deg, transparent 0 20%, rgba(225, 104, 27, 0.34) 20% 24%, transparent 24% 32%, rgba(207, 58, 23, 0.24) 32% 36%, transparent 36% 100%) bottom right / 380px 140px no-repeat,
+        radial-gradient(circle at 10% 86%, rgba(14, 165, 233, 0.22), transparent 5rem),
+        radial-gradient(circle at 90% 14%, rgba(251, 191, 36, 0.25), transparent 5rem);
+    }
+
+    .card > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.74);
+      letter-spacing: 0;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .nav-link.active,
+    .nav-link:hover {
+      color: white;
+    }
+
+    .nav-cta {
+      background: var(--red);
+      color: white;
+      border-radius: 4px;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: white;
+      border-radius: 4px;
+      font-weight: 800;
+    }
+
+    .btn-primary:hover,
+    .nav-cta:hover {
+      background: #b93012;
+    }
+
+    .btn-light {
+      border: 1px solid var(--line);
+      background: #fffdf8;
+      color: var(--text);
+      border-radius: 4px;
+      font-weight: 800;
+    }
+
+    body.high-contrast .btn-light,
+    body.high-contrast .card,
+    body.high-contrast input,
+    body.high-contrast select,
+    body.high-contrast textarea {
+      background: #020617;
+      color: #f8fafc;
+      border-color: #fbbf24;
+    }
+
+    body.high-contrast .card::before {
+      opacity: 0.08;
+    }
+
+    .eyebrow {
+      color: var(--red);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid #d8cfc3;
+      border-radius: 4px;
+      background: #f2ecdf;
+      padding: 0.82rem 0.9rem;
+      color: var(--text);
+    }
+
+    .flag-line {
+      display: grid;
+      grid-template-columns: repeat(22, 1fr);
+      align-items: start;
+      height: 58px;
+      gap: 9px;
+      overflow: hidden;
+    }
+
+    .flag {
+      height: 42px;
+      clip-path: polygon(0 0, 100% 0, 100% 76%, 50% 100%, 0 76%);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+    }
+
+    .flag:nth-child(4n + 1) {
+      transform: translateY(1px) rotate(-3deg);
+    }
+
+    .flag:nth-child(4n + 2) {
+      transform: translateY(10px) rotate(2deg);
+    }
+
+    .flag:nth-child(4n + 3) {
+      transform: translateY(4px) rotate(-1deg);
+    }
+
+    .flag:nth-child(4n + 4) {
+      transform: translateY(14px) rotate(3deg);
+    }
+
+    .chip.active {
+      background: var(--black);
+      color: white;
+      border-color: var(--black);
+    }
+
+    .tab.active {
+      background: var(--red);
+      color: white;
+      border-color: var(--red);
+    }
+
+    .rep-nav.active {
+      background: var(--red);
+      color: white;
+      border-color: var(--red);
+    }
+
+    .auth-choice.active {
+      background: var(--black);
+      color: white;
+      border-color: var(--black);
+    }
+
+    .provider-icon {
+      display: inline-grid;
+      width: 1.35rem;
+      height: 1.35rem;
+      place-items: center;
+      flex: 0 0 auto;
+      font-size: 0.92rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .google-mark {
+      color: #4285f4;
+      font-family: Arial, sans-serif;
+    }
+
+    .range-accent {
+      accent-color: var(--orange);
+    }
+
+    .events-scroll {
+      max-height: 620px;
+      overflow-y: auto;
+      padding-right: 0.4rem;
+    }
+
+    .events-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .events-scroll::-webkit-scrollbar-thumb {
+      background: #cdbfaa;
+      border-radius: 999px;
+    }
+
+    .chat-box {
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .representative-scroll {
+      max-height: 520px;
+      overflow-y: auto;
+      padding-right: 0.4rem;
+    }
+
+    .representative-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .representative-scroll::-webkit-scrollbar-thumb {
+      background: #cdbfaa;
+      border-radius: 999px;
+    }
+
+    @media (max-width: 760px) {
+      .flag-line {
+        grid-template-columns: repeat(12, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#conteudo" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:font-bold focus:text-gray-900">Ir para o conteúdo</a>
+
+  <header class="topbar">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-5">
+      <button class="brand text-2xl font-black text-white focusable" type="button" onclick="showScreen('visitor')">
+        Arraiá <span style="color: #e7a934;">Digital</span>
+      </button>
+      <nav class="flex items-center gap-5" aria-label="Navegação principal">
+        <button class="nav-link active focusable" type="button" onclick="showScreen('visitor')">Início</button>
+        <button id="navPanel" class="nav-link hidden focusable" type="button" onclick="showOrganizerPanel()">Painel</button>
+        <button id="navLogin" class="nav-link nav-cta px-4 py-2 focusable" type="button" onclick="showScreen('login')">Login</button>
+        <button id="navLogout" class="nav-link nav-cta hidden px-4 py-2 focusable" type="button" onclick="logout()">Sair</button>
+      </nav>
+    </div>
+    <div class="mx-auto max-w-6xl px-5 pb-3">
+      <div class="flag-line" aria-hidden="true">
+        <span class="flag bg-red-600"></span><span class="flag bg-amber-400"></span><span class="flag bg-orange-600"></span><span class="flag bg-red-700"></span>
+        <span class="flag bg-yellow-500"></span><span class="flag bg-orange-500"></span><span class="flag bg-red-600"></span><span class="flag bg-amber-400"></span>
+        <span class="flag bg-orange-600"></span><span class="flag bg-red-700"></span><span class="flag bg-yellow-500"></span><span class="flag bg-orange-500"></span>
+        <span class="flag bg-red-600"></span><span class="flag bg-amber-400"></span><span class="flag bg-orange-600"></span><span class="flag bg-red-700"></span>
+        <span class="flag bg-yellow-500"></span><span class="flag bg-orange-500"></span><span class="flag bg-red-600"></span><span class="flag bg-amber-400"></span>
+        <span class="flag bg-orange-600"></span><span class="flag bg-red-700"></span>
+      </div>
+    </div>
+  </header>
+
+  <main id="conteudo" class="mx-auto max-w-6xl px-5 py-10">
+    <section class="mb-8 flex flex-wrap items-center justify-between gap-3">
+      <p class="muted text-sm">UFRA Capitão Poço - Projeto Arraiá Digital</p>
+      <div class="flex gap-2" aria-label="Acessibilidade">
+        <button class="btn-light focusable px-3 py-2 text-sm" type="button" onclick="adjustFont(0.05)">A+</button>
+        <button class="btn-light focusable px-3 py-2 text-sm" type="button" onclick="adjustFont(-0.05)">A-</button>
+        <button class="btn-light focusable px-3 py-2 text-sm" type="button" onclick="toggleContrast()">Contraste</button>
+        <span id="liveRegion" class="sr-only" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section id="visitor" class="screen active" aria-labelledby="visitor-title">
+      <div class="grid gap-8 lg:grid-cols-[360px_1fr]">
+        <aside class="card p-8">
+          <p class="eyebrow">Acesso livre</p>
+          <h1 id="visitor-title" class="mt-3 text-4xl font-black">Encontrar eventos</h1>
+          <p class="muted mt-3 leading-7">Busque festas juninas por cidade, data e estilo.</p>
+
+          <div class="mt-8 space-y-5">
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Cidade</span>
+              <select id="municipality" class="input focusable" onchange="recalculate()">
+                <option>Capitão Poço</option>
+                <option>Belém</option>
+                <option>Castanhal</option>
+                <option>Bragança</option>
+                <option>Santarém</option>
+                <option>Marabá</option>
+                <option>Abaetetuba</option>
+                <option>Capanema</option>
+                <option>Salinópolis</option>
+                <option>Paragominas</option>
+              </select>
+            </label>
+
+            <label class="block">
+              <span class="mb-2 flex justify-between text-sm font-bold uppercase text-stone-600">
+                Distância <strong><span id="distanceValue">180</span> km</strong>
+              </span>
+              <input id="distance" class="range-accent w-full" type="range" min="10" max="450" value="180" oninput="recalculate()" />
+            </label>
+
+            <label class="block">
+              <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Data</span>
+              <input id="date" class="input focusable" type="date" value="2026-06-24" onchange="recalculate()" />
+            </label>
+
+            <div>
+              <p class="mb-2 text-sm font-bold uppercase text-stone-600">Estilo</p>
+              <div class="flex flex-wrap gap-2">
+                <button class="chip active btn-light focusable px-3 py-2 text-sm" type="button" data-category="Tradicional" onclick="toggleCategory(this)">Tradicional</button>
+                <button class="chip btn-light focusable px-3 py-2 text-sm" type="button" data-category="Estilizada" onclick="toggleCategory(this)">Estilizada</button>
+                <button class="chip btn-light focusable px-3 py-2 text-sm" type="button" data-category="Cômica" onclick="toggleCategory(this)">Cômica</button>
+              </div>
+            </div>
+
+            <details>
+              <summary class="cursor-pointer text-sm font-black uppercase text-red-700">Critérios de recomendação</summary>
+              <div class="mt-4 space-y-3">
+                <label class="block">
+                  <span class="flex justify-between text-sm font-bold text-stone-600">Distância <strong id="wDistanceValue">40</strong></span>
+                  <input id="wDistance" class="range-accent w-full" type="range" min="0" max="100" value="40" oninput="recalculate()" />
+                </label>
+                <label class="block">
+                  <span class="flex justify-between text-sm font-bold text-stone-600">Data <strong id="wDateValue">30</strong></span>
+                  <input id="wDate" class="range-accent w-full" type="range" min="0" max="100" value="30" oninput="recalculate()" />
+                </label>
+                <label class="block">
+                  <span class="flex justify-between text-sm font-bold text-stone-600">Estilo <strong id="wCategoryValue">30</strong></span>
+                  <input id="wCategory" class="range-accent w-full" type="range" min="0" max="100" value="30" oninput="recalculate()" />
+                </label>
+              </div>
+            </details>
+
+            <button class="btn-primary focusable flex w-full items-center justify-center gap-2 px-5 py-3" type="button" onclick="searchEvents()">
+              <i data-lucide="search" class="h-5 w-5"></i>
+              Pesquisar
+            </button>
+          </div>
+        </aside>
+
+        <section>
+          <div class="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p class="eyebrow">Eventos</p>
+              <h2 class="mt-2 text-3xl font-black">Recomendados para você</h2>
+            </div>
+            <span id="resultCount" class="rounded bg-amber-400 px-3 py-2 text-sm font-black text-stone-900">0 eventos</span>
+          </div>
+          <div id="results" class="events-scroll space-y-4"></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="event" class="screen" aria-labelledby="event-title">
+      <article class="card p-8">
+        <button class="btn-light focusable inline-flex items-center gap-2 px-4 py-2" type="button" onclick="showScreen('visitor')">
+          <i data-lucide="arrow-left" class="h-4 w-4" aria-hidden="true"></i> Voltar
+        </button>
+
+        <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div>
+            <p class="eyebrow">Evento público</p>
+            <h1 id="event-title" class="mt-3 text-4xl font-black">Arraiá do Alunado</h1>
+            <p class="muted mt-3 text-lg">Capitão Poço - 24/06/2026 - Entrada franca</p>
+
+            <div class="mt-8">
+              <h2 class="text-2xl font-black">Cronograma</h2>
+              <div class="mt-4 divide-y divide-stone-200 border-y border-stone-200">
+                <div class="grid grid-cols-[80px_1fr] gap-4 py-4">
+                  <strong class="text-red-700">19:00</strong>
+                  <span>Estrela do Sertão - Tradicional</span>
+                </div>
+                <div class="grid grid-cols-[80px_1fr] gap-4 py-4">
+                  <strong class="text-red-700">20:00</strong>
+                  <span>Luar da Roça - Estilizada</span>
+                </div>
+                <div class="grid grid-cols-[80px_1fr] gap-4 py-4">
+                  <strong class="text-red-700">21:00</strong>
+                  <span>Riso Junino - Cômica</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="space-y-3">
+            <h2 class="text-2xl font-black">Informações públicas</h2>
+            <button class="btn-light focusable flex w-full items-center justify-between px-4 py-3" type="button">
+              Resultado oficial <i data-lucide="trophy" class="h-4 w-4" aria-hidden="true"></i>
+            </button>
+            <button class="btn-light focusable flex w-full items-center justify-between px-4 py-3" type="button">
+              Comunicados <i data-lucide="megaphone" class="h-4 w-4" aria-hidden="true"></i>
+            </button>
+            <div class="rounded border border-amber-200 bg-amber-50/90 p-4">
+              <h3 class="font-black text-stone-900">Ranking final</h3>
+              <p id="publicRankingStatus" class="mt-2 text-sm text-stone-700">Disponível após a finalização do evento.</p>
+              <ol id="publicRankingRows" class="mt-3 space-y-2 text-sm text-stone-800"></ol>
+            </div>
+          </aside>
+        </div>
+      </article>
+    </section>
+
+    <section id="login" class="screen" aria-labelledby="login-title">
+      <div class="card mx-auto max-w-lg p-8">
+        <p class="eyebrow">Acesso</p>
+        <h1 id="login-title" class="mt-3 text-4xl font-black">Entrar</h1>
+        <p class="muted mt-3">Organizadores e representantes acessam áreas diferentes.</p>
+
+        <div class="mt-8 grid grid-cols-2 gap-2" role="tablist" aria-label="Tipo de login">
+          <button id="organizerChoice" class="auth-choice active btn-light focusable px-4 py-3" type="button" onclick="showAuthForm('organizer')">Organizador</button>
+          <button id="representativeChoice" class="auth-choice btn-light focusable px-4 py-3" type="button" onclick="showAuthForm('representative')">Representante</button>
+        </div>
+
+        <form id="organizerLoginForm" class="mt-8 space-y-5" onsubmit="event.preventDefault(); loginOrganizer();">
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">E-mail</span>
+            <input class="input focusable" type="email" required />
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Senha</span>
+            <input class="input focusable" type="password" required />
+          </label>
+          <button class="btn-primary focusable w-full px-4 py-3" type="submit">Entrar</button>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <button class="btn-light focusable inline-flex items-center justify-center gap-2 px-4 py-3" type="button" onclick="loginOrganizer()">
+              <span class="provider-icon google-mark" aria-hidden="true">G</span> Entrar com Google
+            </button>
+            <button class="btn-light focusable inline-flex items-center justify-center gap-2 px-4 py-3" type="button" onclick="loginOrganizer()">
+              <i data-lucide="apple" class="h-5 w-5" aria-hidden="true"></i> Entrar com Apple
+            </button>
+          </div>
+        </form>
+
+        <form id="representativeLoginForm" class="mt-8 hidden space-y-5" onsubmit="event.preventDefault(); loginRepresentative();">
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">E-mail</span>
+            <input class="input focusable" type="email" placeholder="representante@email.com" required />
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Senha</span>
+            <input class="input focusable" type="password" required />
+          </label>
+          <button class="btn-primary focusable w-full px-4 py-3" type="submit">Entrar como representante</button>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <button class="btn-light focusable inline-flex items-center justify-center gap-2 px-4 py-3" type="button" onclick="loginRepresentative()">
+              <span class="provider-icon google-mark" aria-hidden="true">G</span> Entrar com Google
+            </button>
+            <button class="btn-light focusable inline-flex items-center justify-center gap-2 px-4 py-3" type="button" onclick="loginRepresentative()">
+              <i data-lucide="apple" class="h-5 w-5" aria-hidden="true"></i> Entrar com Apple
+            </button>
+          </div>
+        </form>
+
+        <p id="organizerRegisterLink" class="muted mt-5">
+          Ainda não tem conta?
+          <button class="font-bold text-red-700 underline-offset-4 hover:underline focusable" type="button" onclick="showScreen('register')">Criar cadastro de organizador</button>
+        </p>
+        <p id="representativeRegisterLink" class="muted mt-5 hidden">
+          Ainda não tem conta?
+          <button class="font-bold text-red-700 underline-offset-4 hover:underline focusable" type="button" onclick="showScreen('register-representative')">Criar cadastro de representante</button>
+        </p>
+        <p class="muted mt-2">
+          Esqueceu a senha?
+          <button class="font-bold text-red-700 underline-offset-4 hover:underline focusable" type="button" onclick="showScreen('forgot')">Recuperar senha</button>
+        </p>
+      </div>
+    </section>
+
+    <section id="forgot" class="screen" aria-labelledby="forgot-title">
+      <div class="card mx-auto max-w-lg p-8">
+        <p class="eyebrow">Recuperação</p>
+        <h1 id="forgot-title" class="mt-3 text-4xl font-black">Recuperar senha</h1>
+        <p class="muted mt-3">Informe o e-mail cadastrado para receber a recuperação de acesso.</p>
+
+        <form class="mt-8 space-y-5" onsubmit="event.preventDefault(); showScreen('login');">
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">E-mail</span>
+            <input class="input focusable" type="email" required />
+          </label>
+          <button class="btn-primary focusable w-full px-4 py-3" type="submit">Enviar recuperação</button>
+        </form>
+
+        <button class="mt-5 font-bold text-red-700 underline-offset-4 hover:underline focusable" type="button" onclick="showScreen('login')">Voltar para login</button>
+      </div>
+    </section>
+
+    <section id="register" class="screen" aria-labelledby="register-title">
+      <div class="card mx-auto max-w-3xl p-8">
+        <p class="eyebrow">Cadastro</p>
+        <h1 id="register-title" class="mt-3 text-4xl font-black">Criar conta</h1>
+        <p class="muted mt-3">Cadastro para organizadores criarem e gerenciarem eventos.</p>
+
+        <form class="mt-8 grid gap-5 md:grid-cols-2" onsubmit="event.preventDefault(); registerOrganizer();">
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Nome completo</span>
+            <input class="input focusable" type="text" required />
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">E-mail</span>
+            <input class="input focusable" type="email" required />
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">CPF</span>
+            <input class="input focusable" type="text" placeholder="000.000.000-00" required />
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Data de nascimento</span>
+            <input class="input focusable" type="date" required />
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Telefone</span>
+            <input class="input focusable" type="tel" placeholder="(00) 00000-0000" required />
+          </label>
+          <label class="block">
+            <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Senha</span>
+            <input class="input focusable" type="password" required />
+          </label>
+          <button class="btn-primary focusable px-4 py-3 md:col-span-2" type="submit">Criar cadastro</button>
+        </form>
+
+        <p class="muted mt-5">
+          Já tem conta?
+          <button class="font-bold text-red-700 underline-offset-4 hover:underline focusable" type="button" onclick="showScreen('login')">Entrar</button>
+        </p>
+      </div>
+    </section>
+
+    <section id="register-representative" class="screen" aria-labelledby="register-representative-title">
+      <div class="card mx-auto max-w-5xl p-8">
+        <p class="eyebrow">Cadastro</p>
+        <h1 id="register-representative-title" class="mt-3 text-4xl font-black">Representante de quadrilha</h1>
+        <p class="muted mt-3">Cadastro da quadrilha, do representante e dos documentos exigidos para inscrição.</p>
+
+        <form class="mt-8 space-y-8" onsubmit="event.preventDefault(); registerRepresentative();">
+          <section>
+            <h2 class="text-2xl font-black">Dados de acesso</h2>
+            <div class="mt-5 grid gap-5 md:grid-cols-3">
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">E-mail</span>
+                <input class="input focusable" type="email" placeholder="representante@email.com" required />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Nome da quadrilha</span>
+                <input class="input focusable" type="text" placeholder="Ex.: Estrela do Sertão" required />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Senha</span>
+                <input class="input focusable" type="password" required />
+              </label>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-black">Representante</h2>
+            <div class="mt-5 grid gap-5 md:grid-cols-3">
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Nome do representante</span>
+                <input class="input focusable" type="text" required />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">CPF</span>
+                <input class="input focusable" type="text" placeholder="000.000.000-00" required />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Telefone</span>
+                <input class="input focusable" type="tel" placeholder="(00) 00000-0000" required />
+              </label>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-black">Quadrilha</h2>
+            <div class="mt-5 grid gap-5 md:grid-cols-2">
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Quantidade de pares</span>
+                <input class="input focusable" type="number" min="1" value="16" required />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Ano de fundação</span>
+                <input class="input focusable" type="number" min="1900" max="2026" value="2018" required />
+              </label>
+              <label class="block md:col-span-2">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Release da temática</span>
+                <textarea class="input focusable min-h-28" placeholder="Resumo do tema apresentado pela quadrilha"></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="text-2xl font-black">Documentos</h2>
+            <div class="mt-5 grid gap-5 md:grid-cols-2">
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">RG do representante</span>
+                <input class="input focusable" type="file" accept=".pdf,image/*" />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">RG dos componentes</span>
+                <input class="input focusable" type="file" accept=".pdf,image/*" multiple />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">RG da Miss Caipira</span>
+                <input class="input focusable" type="file" accept=".pdf,image/*" />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">RG da Miss Negritude</span>
+                <input class="input focusable" type="file" accept=".pdf,image/*" />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">RG da Miss Simpatia</span>
+                <input class="input focusable" type="file" accept=".pdf,image/*" />
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">RG da Miss Diversidade</span>
+                <input class="input focusable" type="file" accept=".pdf,image/*" />
+              </label>
+            </div>
+          </section>
+
+          <button class="btn-primary focusable w-full px-4 py-3" type="submit">Criar cadastro de representante</button>
+        </form>
+
+        <p class="muted mt-5">
+          Já tem cadastro?
+          <button class="font-bold text-red-700 underline-offset-4 hover:underline focusable" type="button" onclick="showScreen('login'); showAuthForm('representative');">Entrar como representante</button>
+        </p>
+      </div>
+    </section>
+
+    <section id="representative" class="screen" aria-labelledby="representative-title">
+      <div class="grid gap-8 lg:grid-cols-[300px_1fr]">
+        <aside class="card p-8">
+          <p class="eyebrow">Representante</p>
+          <h1 id="representative-title" class="mt-3 text-3xl font-black">Estrela do Sertão</h1>
+          <p class="muted mt-3">Acesso por e-mail e senha. A mesma conta pode atuar como representante, organizador ou jurado vinculado quando tiver permissão.</p>
+          <div class="mt-6 space-y-2">
+            <button class="rep-nav active btn-light focusable w-full px-4 py-3 text-left" data-rep-target="rep-registered" type="button" onclick="showRepresentativeTab('rep-registered', this)">Concursos cadastrados</button>
+            <button class="rep-nav btn-light focusable w-full px-4 py-3 text-left" data-rep-target="rep-available" type="button" onclick="showRepresentativeTab('rep-available', this)">Concursos disponíveis</button>
+            <button class="rep-nav btn-light focusable w-full px-4 py-3 text-left" data-rep-target="rep-documents" type="button" onclick="showRepresentativeTab('rep-documents', this)">Documentos</button>
+            <button class="rep-nav btn-light focusable w-full px-4 py-3 text-left" data-rep-target="rep-results" type="button" onclick="showRepresentativeTab('rep-results', this)">Resultados</button>
+            <button class="rep-nav btn-light focusable w-full px-4 py-3 text-left" data-rep-target="rep-chat" type="button" onclick="showRepresentativeTab('rep-chat', this)">Chat</button>
+          </div>
+          <div class="mt-6 rounded border border-amber-200 bg-amber-50/90 p-4">
+            <p class="text-sm font-black uppercase text-stone-700">Documentação</p>
+            <p class="mt-1 text-sm text-stone-700">Arquivos salvos para envio automático nas solicitações.</p>
+          </div>
+        </aside>
+
+        <section>
+          <article id="rep-registered" class="rep-tab card p-8">
+            <p class="eyebrow">Minhas inscrições</p>
+            <h2 class="mt-3 text-3xl font-black">Concursos em que se cadastrou</h2>
+            <div class="mt-6 divide-y divide-stone-200 border-y border-stone-200">
+              <div class="flex flex-wrap items-center justify-between gap-3 py-4">
+                <span>
+                  <strong>Arraiá do Alunado</strong><br>
+                  <small class="muted">Capitão Poço - 24/06/2026 - Horário confirmado: 19:00</small>
+                </span>
+                <span class="rounded bg-green-100 px-3 py-1 text-sm font-black text-green-800">Deferida</span>
+              </div>
+              <div class="flex flex-wrap items-center justify-between gap-3 py-4">
+                <span>
+                  <strong>Festival Junino de Castanhal</strong><br>
+                  <small class="muted">Castanhal - 25/06/2026 - Horário confirmado: 20:00</small>
+                </span>
+                <span class="rounded bg-green-100 px-3 py-1 text-sm font-black text-green-800">Deferida</span>
+              </div>
+            </div>
+          </article>
+
+          <article id="rep-available" class="rep-tab card hidden p-8">
+            <p class="eyebrow">Disponíveis</p>
+            <h2 class="mt-3 text-3xl font-black">Concursos para se cadastrar</h2>
+            <div class="mt-6 grid gap-4 xl:grid-cols-2">
+              <div class="rounded border border-stone-200 bg-white/70 p-4">
+                <h3 class="text-xl font-black">Arraiá Regional de Bragança</h3>
+                <p class="muted mt-1 text-sm">Local: Arena Cultural de Bragança - 23/06/2026</p>
+                <p class="mt-3 text-sm"><strong>Vagas:</strong> 8 quadrilhas</p>
+                <p class="mt-1 text-sm"><strong>Horários:</strong> 19:00, 20:00, 21:00</p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <button class="btn-light focusable inline-flex items-center gap-2 px-4 py-2" type="button">
+                    Regulamento <i data-lucide="file-text" class="h-4 w-4" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn-primary focusable px-4 py-2" type="button" onclick="requestRepresentativeRegistration()">Solicitar participação</button>
+                </div>
+              </div>
+              <div class="rounded border border-stone-200 bg-white/70 p-4">
+                <h3 class="text-xl font-black">São João de Salinópolis</h3>
+                <p class="muted mt-1 text-sm">Local: Praça da Matriz - 30/06/2026</p>
+                <p class="mt-3 text-sm"><strong>Vagas:</strong> 10 quadrilhas</p>
+                <p class="mt-1 text-sm"><strong>Horários:</strong> 18:30, 19:30, 20:30</p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                  <button class="btn-light focusable inline-flex items-center gap-2 px-4 py-2" type="button">
+                    Regulamento <i data-lucide="file-text" class="h-4 w-4" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn-primary focusable px-4 py-2" type="button" onclick="requestRepresentativeRegistration()">Solicitar participação</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article id="rep-documents" class="rep-tab card hidden p-8">
+            <p class="eyebrow">Documentos</p>
+            <h2 class="mt-3 text-3xl font-black">Documentação da quadrilha</h2>
+            <p class="muted mt-3">Anexe aqui os documentos solicitados pelos critérios do festival. Ao pedir inscrição, a documentação salva segue automaticamente para o organizador.</p>
+            <div class="representative-scroll mt-6">
+              <div class="grid gap-5 md:grid-cols-2">
+                <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">RG do representante</span><input class="input focusable" type="file" accept=".pdf,image/*" /></label>
+                <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">RG dos componentes</span><input class="input focusable" type="file" accept=".pdf,image/*" multiple /></label>
+                <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Documentos das misses</span><input class="input focusable" type="file" accept=".pdf,image/*" multiple /></label>
+                <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Release e anexos do tema</span><input class="input focusable" type="file" accept=".pdf,.doc,.docx,image/*" multiple /></label>
+              </div>
+              <div class="mt-6 rounded border border-stone-200 bg-white/70 p-4">
+                <h3 class="font-black">Documentos salvos</h3>
+                <ul class="mt-3 space-y-2 text-sm text-stone-700">
+                  <li>RG do representante: enviado</li>
+                  <li>RG dos componentes: 32 arquivos</li>
+                  <li>Documentos das misses: 4 arquivos</li>
+                  <li>Release e anexos do tema: pendente de revisão</li>
+                </ul>
+              </div>
+            </div>
+            <button class="btn-primary focusable mt-6 px-5 py-3" type="button" onclick="saveRepresentativeDocuments()">Salvar documentação</button>
+          </article>
+
+          <article id="rep-results" class="rep-tab card hidden p-8">
+            <p class="eyebrow">Resultado</p>
+            <h2 class="mt-3 text-3xl font-black">Ranking e notas individuais</h2>
+            <p class="muted mt-3">Notas individuais aparecem após os jurados enviarem as avaliações. O ranking final aparece após a finalização do evento.</p>
+            <div class="representative-scroll mt-6">
+              <div class="grid gap-4 lg:grid-cols-[260px_1fr]">
+                <div class="rounded border border-stone-200 bg-white/70 p-4">
+                  <h3 class="font-black">Arraiá do Alunado</h3>
+                  <p id="representativeRankingStatus" class="muted mt-2 text-sm">Ranking final aguardando finalização do evento.</p>
+                  <ol id="representativeRankingRows" class="mt-3 space-y-2 text-sm"></ol>
+                </div>
+                <div class="overflow-x-auto rounded border border-stone-200 bg-white/70 p-4">
+                  <h3 class="mb-3 font-black">Notas da Estrela do Sertão</h3>
+                  <table class="w-full min-w-[520px] text-left text-sm">
+                    <thead class="text-xs uppercase text-stone-600">
+                      <tr><th class="py-2">Quesito</th><th class="py-2">Nota</th><th class="py-2">Justificativa</th></tr>
+                    </thead>
+                    <tbody id="representativeScoreRows" class="divide-y divide-stone-200"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article id="rep-chat" class="rep-tab card hidden p-8">
+            <p class="eyebrow">Chat</p>
+            <h3 class="mt-3 text-2xl font-black">Chat com organizador</h3>
+            <div class="chat-box mt-5 space-y-3 border-y border-stone-200 py-4">
+              <p class="max-w-[82%] rounded bg-white px-4 py-3 text-sm">Olá, gostaria de confirmar a documentação da quadrilha.</p>
+              <p class="ml-auto max-w-[82%] rounded bg-red-700 px-4 py-3 text-sm text-white">Recebemos sua solicitação. A validação será feita pela organização.</p>
+            </div>
+            <div class="mt-4 flex gap-3">
+              <input class="input focusable" placeholder="Digite sua mensagem" />
+              <button class="btn-primary focusable px-5 py-3" type="button">Enviar</button>
+            </div>
+          </article>
+        </section>
+      </div>
+    </section>
+
+    <section id="juror" class="screen" aria-labelledby="juror-title">
+      <div class="card mx-auto max-w-5xl p-8">
+        <p class="eyebrow">Jurado vinculado</p>
+        <h1 id="juror-title" class="mt-3 text-4xl font-black">Concursos para julgar</h1>
+        <p class="muted mt-3">Aqui aparecem apenas os concursos em que este perfil de organizador foi vinculado como jurado.</p>
+
+        <div id="jurorAssignments" class="mt-8 divide-y divide-stone-200 border-y border-stone-200"></div>
+
+        <article id="jurorJudgingPanel" class="mt-8 hidden border-t border-stone-200 pt-8">
+          <button class="btn-light focusable inline-flex items-center gap-2 px-4 py-2" type="button" onclick="showJurorAssignments()">
+            <i data-lucide="arrow-left" class="h-4 w-4" aria-hidden="true"></i> Voltar para concursos
+          </button>
+
+          <div class="mt-6 grid gap-8 lg:grid-cols-[280px_1fr]">
+            <aside>
+              <p class="eyebrow">Quesito</p>
+              <h2 id="jurorCriterionTitle" class="mt-2 text-2xl font-black">Coreografia</h2>
+              <p id="jurorEventInfo" class="muted mt-3 text-sm">Arraiá do Alunado - autorizado</p>
+              <h3 class="mt-8 text-xl font-black">Quadrilhas</h3>
+              <div id="jurorQuadrilhaList" class="mt-4 space-y-2"></div>
+            </aside>
+
+            <section>
+              <h2 class="text-2xl font-black">Julgar apresentação</h2>
+              <div class="mt-5 grid gap-5 md:grid-cols-2">
+                <label class="block">
+                  <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Quadrilha selecionada</span>
+                  <select id="jurorQuadrilha" class="input focusable"></select>
+                </label>
+                <label class="block">
+                  <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Nota de 6 a 10</span>
+                  <input id="jurorScore" class="input focusable" type="text" inputmode="decimal" value="9,5" />
+                </label>
+                <label class="block md:col-span-2">
+                  <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Justificativa</span>
+                  <textarea id="jurorJustification" class="input focusable min-h-28" placeholder="Justifique a nota atribuída"></textarea>
+                </label>
+              </div>
+              <button class="btn-primary focusable mt-6 px-5 py-3" type="button" onclick="saveJurorScore()">Salvar e enviar</button>
+              <p class="muted mt-3 text-sm">Após enviar, a nota fica disponível para cálculo do ranking quando o organizador finalizar o concurso.</p>
+            </section>
+          </div>
+        </article>
+
+        <article class="mt-8 rounded border border-amber-200 bg-amber-50/90 p-4">
+          <h2 class="text-2xl font-black text-stone-900">Ranking final</h2>
+          <p id="jurorRankingStatus" class="mt-2 text-sm text-stone-700">Disponível após a finalização do evento.</p>
+          <ol id="jurorRankingRows" class="mt-3 space-y-2 text-sm text-stone-800"></ol>
+        </article>
+      </div>
+    </section>
+
+    <section id="organizer" class="screen" aria-labelledby="organizer-title">
+      <div class="grid gap-8 lg:grid-cols-[250px_1fr]">
+        <aside class="card p-6">
+          <p class="eyebrow">Organizador</p>
+          <h1 id="organizer-title" class="mt-3 text-3xl font-black">Painel</h1>
+          <div class="mt-6 space-y-2">
+            <button class="tab active btn-light focusable w-full px-4 py-3 text-left" data-tab-target="org-dashboard" type="button" onclick="showOrganizerTab('org-dashboard', this)">Painel</button>
+            <button class="tab btn-light focusable w-full px-4 py-3 text-left" data-tab-target="org-event" type="button" onclick="showOrganizerTab('org-event', this)">Meus eventos</button>
+            <button class="tab btn-light focusable w-full px-4 py-3 text-left" data-tab-target="org-jury" type="button" onclick="showOrganizerTab('org-jury', this)">Jurados</button>
+            <button class="tab btn-light focusable w-full px-4 py-3 text-left" data-tab-target="org-inscriptions" type="button" onclick="showOrganizerTab('org-inscriptions', this)">Validação</button>
+            <button class="tab btn-light focusable w-full px-4 py-3 text-left" data-tab-target="org-participants" type="button" onclick="showOrganizerTab('org-participants', this)">Participantes</button>
+            <button class="tab btn-light focusable w-full px-4 py-3 text-left" data-tab-target="org-declined" type="button" onclick="showOrganizerTab('org-declined', this)">Indeferidas</button>
+            <button class="tab btn-light focusable w-full px-4 py-3 text-left" data-tab-target="org-score" type="button" onclick="showOrganizerTab('org-score', this)">Avaliar</button>
+            <button class="tab btn-light focusable w-full px-4 py-3 text-left" data-tab-target="org-publish" type="button" onclick="showOrganizerTab('org-publish', this)">Publicar</button>
+            <button class="tab btn-light focusable w-full px-4 py-3 text-left" data-tab-target="org-chat" type="button" onclick="showOrganizerTab('org-chat', this)">Chat</button>
+          </div>
+        </aside>
+
+        <div class="card p-8">
+          <article id="org-dashboard" class="org-tab">
+            <p class="eyebrow">Sessão ativa</p>
+            <h2 class="mt-3 text-3xl font-black">Painel do organizador</h2>
+            <p class="muted mt-3">Você permanece logado até escolher sair.</p>
+            <div class="mt-6 grid gap-4 md:grid-cols-3">
+              <button class="btn-light focusable px-4 py-5 text-left" type="button" onclick="openOrganizerTab('org-event')">
+                <strong>Meus eventos</strong><br><span class="muted text-sm">1 evento criado</span>
+              </button>
+              <button class="btn-light focusable px-4 py-5 text-left" type="button" onclick="openJudgingArea()">
+                <strong>Concursos para julgar</strong><br><span class="muted text-sm">1 autorizado, 1 pendente</span>
+              </button>
+              <button class="btn-light focusable px-4 py-5 text-left" type="button" onclick="openOrganizerTab('org-publish')">
+                <strong>Comunicados</strong><br><span class="muted text-sm">Evento e representantes</span>
+              </button>
+            </div>
+          </article>
+
+          <article id="org-event" class="org-tab hidden">
+            <p class="eyebrow">Cadastro</p>
+            <h2 class="mt-3 text-3xl font-black">Meus eventos</h2>
+            <div class="events-scroll mt-6 space-y-3 border-y border-stone-200 py-4">
+              <div class="flex flex-wrap items-center justify-between gap-3 rounded bg-white/70 px-4 py-3">
+                <span><strong>Arraiá do Alunado</strong><br><small class="muted">Criado por você - Capitão Poço</small></span>
+                <button class="btn-light focusable px-4 py-2" type="button">Editar</button>
+              </div>
+            </div>
+
+            <h3 class="mt-8 text-2xl font-black">Criar novo evento</h3>
+            <div class="mt-6 grid gap-5 md:grid-cols-2">
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Nome</span><input class="input focusable" value="Arraiá do Alunado" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Cidade</span><input class="input focusable" value="Capitão Poço" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Data</span><input class="input focusable" type="date" value="2026-06-24" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Vagas</span><input class="input focusable" type="number" value="12" /></label>
+              <label class="block md:col-span-2">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Imagem de capa</span>
+                <input class="input focusable" type="file" accept="image/*" onchange="previewCover(event)" />
+              </label>
+              <label class="block md:col-span-2">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Regulamento</span>
+                <input class="input focusable" type="file" accept=".pdf,.doc,.docx" />
+              </label>
+            </div>
+            <div class="mt-5 overflow-hidden rounded border border-stone-200 bg-stone-100">
+              <img id="coverPreview" class="hidden h-48 w-full object-cover" alt="Prévia da capa do evento" />
+              <div id="coverEmpty" class="flex h-48 items-center justify-center text-sm font-bold uppercase text-stone-500">Prévia da capa</div>
+            </div>
+            <button class="btn-primary focusable mt-6 px-5 py-3" type="button">Salvar evento</button>
+          </article>
+
+          <article id="org-jury" class="org-tab hidden">
+            <p class="eyebrow">Equipe</p>
+            <h2 class="mt-3 text-3xl font-black">Vincular jurado</h2>
+            <p class="muted mt-3">Digite o e-mail do login cadastrado na plataforma e vincule ao quesito que ele vai julgar.</p>
+            <div class="mt-6 grid gap-5 md:grid-cols-3">
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">E-mail do jurado</span><input id="juryEmail" class="input focusable" type="email" placeholder="jurado@email.com" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Evento criado por você</span><select class="input focusable"><option>Arraiá do Alunado</option></select></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Quesito</span><input id="juryCriterion" class="input focusable" placeholder="Quesito do regulamento" /></label>
+            </div>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <button class="btn-primary focusable px-5 py-3" type="button" onclick="addJuror()">Vincular jurado</button>
+              <button class="btn-light focusable px-5 py-3" type="button" onclick="focusNewJuror()">Adicionar mais jurados</button>
+            </div>
+            <h3 class="mt-8 text-2xl font-black">Jurados cadastrados neste evento</h3>
+            <div id="jurorList" class="mt-4 divide-y divide-stone-200 border-y border-stone-200"></div>
+          </article>
+
+          <article id="org-inscriptions" class="org-tab hidden">
+            <p class="eyebrow">Validação</p>
+            <h2 class="mt-3 text-3xl font-black">Inscrições para validar</h2>
+            <p class="muted mt-3">Ao deferir ou indeferir, a quadrilha sai desta lista e vai para a aba correspondente.</p>
+            <div id="pendingInscriptions" class="mt-6 divide-y divide-stone-200 border-y border-stone-200"></div>
+          </article>
+
+          <article id="org-participants" class="org-tab hidden">
+            <p class="eyebrow">Evento</p>
+            <h2 class="mt-3 text-3xl font-black">Quadrilhas participantes</h2>
+            <p class="muted mt-3">Quadrilhas com inscrição deferida para este evento.</p>
+            <div id="approvedInscriptions" class="mt-6 divide-y divide-stone-200 border-y border-stone-200"></div>
+          </article>
+
+          <article id="org-declined" class="org-tab hidden">
+            <p class="eyebrow">Arquivo</p>
+            <h2 class="mt-3 text-3xl font-black">Inscrições indeferidas</h2>
+            <p class="muted mt-3">Quadrilhas que não foram aprovadas para este evento.</p>
+            <div id="declinedInscriptions" class="mt-6 divide-y divide-stone-200 border-y border-stone-200"></div>
+          </article>
+
+          <article id="org-score" class="org-tab hidden">
+            <p class="eyebrow">Final do evento</p>
+            <h2 class="mt-3 text-3xl font-black">Avaliação do organizador</h2>
+            <div id="evaluationList" class="mt-6 divide-y divide-stone-200 border-y border-stone-200"></div>
+            <div id="evaluationForm" class="mt-8 hidden">
+              <h3 id="evaluationTitle" class="text-2xl font-black">Avaliar quadrilha</h3>
+              <input id="evaluationQuadrilha" type="hidden" />
+              <div class="mt-6 grid gap-5 md:grid-cols-2">
+              <label class="block md:col-span-2">
+                <span class="mb-3 block text-sm font-bold uppercase text-stone-600">Avalie a quadrilha selecionada sobre seu comportamento no festival</span>
+                <span class="flex gap-2" role="radiogroup" aria-label="Avaliação em estrelas">
+                  <button class="org-rating-star focusable text-4xl text-amber-500" type="button" aria-label="1 estrela" onclick="setOrganizerStars(1)">★</button>
+                  <button class="org-rating-star focusable text-4xl text-amber-500" type="button" aria-label="2 estrelas" onclick="setOrganizerStars(2)">★</button>
+                  <button class="org-rating-star focusable text-4xl text-amber-500" type="button" aria-label="3 estrelas" onclick="setOrganizerStars(3)">★</button>
+                  <button class="org-rating-star focusable text-4xl text-amber-500" type="button" aria-label="4 estrelas" onclick="setOrganizerStars(4)">★</button>
+                  <button class="org-rating-star focusable text-4xl text-stone-300" type="button" aria-label="5 estrelas" onclick="setOrganizerStars(5)">★</button>
+                </span>
+              </label>
+              <label class="block md:col-span-2"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Comentário opcional</span><textarea class="input focusable min-h-24" placeholder="Observação interna da organização"></textarea></label>
+              </div>
+              <div class="mt-6 flex flex-wrap gap-3">
+                <button class="btn-primary focusable px-5 py-3" type="button" onclick="saveOrganizerEvaluation()">Salvar avaliação final</button>
+                <button class="btn-light focusable px-5 py-3" type="button" onclick="showEvaluationList()">Voltar para lista</button>
+              </div>
+            </div>
+          </article>
+
+          <article id="org-publish" class="org-tab hidden">
+            <p class="eyebrow">Portal</p>
+            <h2 class="mt-3 text-3xl font-black">Finalizar e publicar</h2>
+            <p class="muted mt-3">Ao finalizar o evento, o sistema calcula as notas lançadas e monta o ranking oficial.</p>
+            <button class="btn-primary focusable mt-6 px-5 py-3" type="button" onclick="finishContest()">Finalizar evento e calcular ranking</button>
+            <p id="rankingStatus" class="muted mt-3 text-sm">Ranking aguardando finalização do concurso.</p>
+
+            <h3 class="mt-8 text-2xl font-black">Ranking calculado</h3>
+            <ol id="rankingRows" class="mt-4 divide-y divide-stone-200 border-y border-stone-200"></ol>
+            <div class="mt-8 grid gap-5 md:grid-cols-2">
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Comunicado para representantes</span>
+                <textarea class="input focusable min-h-28" placeholder="Mensagem para todos os representantes inscritos"></textarea>
+              </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Comunicado público do evento</span>
+                <textarea class="input focusable min-h-28" placeholder="Mensagem pública para visitantes"></textarea>
+              </label>
+            </div>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <button class="btn-light focusable px-5 py-3" type="button">Enviar aos representantes</button>
+              <button class="btn-primary focusable px-5 py-3" type="button">Publicar resultado e comunicado</button>
+            </div>
+          </article>
+
+          <article id="org-chat" class="org-tab hidden">
+            <p class="eyebrow">Mensagens</p>
+            <h2 class="mt-3 text-3xl font-black">Chat com representante</h2>
+            <label class="mt-6 block">
+              <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Quadrilha</span>
+              <select class="input focusable"><option>Estrela do Sertão</option><option>Luar da Roça</option></select>
+            </label>
+            <div class="chat-box mt-5 space-y-3 border-y border-stone-200 py-4">
+              <p class="max-w-[82%] rounded bg-white px-4 py-3 text-sm">Olá, gostaria de confirmar a documentação da quadrilha.</p>
+              <p class="ml-auto max-w-[82%] rounded bg-red-700 px-4 py-3 text-sm text-white">Recebemos sua solicitação. A validação será feita pela organização.</p>
+            </div>
+            <div class="mt-4 flex gap-3">
+              <input class="input focusable" placeholder="Digite sua mensagem" />
+              <button class="btn-primary focusable px-5 py-3" type="button">Enviar</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="topbar mt-12 py-8 text-center text-sm text-white/55">
+    © 2026 <span style="color: #e7a934;">Arraiá Digital</span> - Plataforma de eventos juninos
+  </footer>
+
+  <script>
+    const events = [
+      { name: "Arraiá do Alunado", city: "Capitão Poço", date: "2026-06-24", distance: 12, category: "Tradicional", rating: 4.8, why: "Perto de você e na data escolhida" },
+      { name: "Festival Junino de Castanhal", city: "Castanhal", date: "2026-06-25", distance: 88, category: "Estilizada", rating: 4.6, why: "Boa data e estilo compatível" },
+      { name: "Arraiá Regional de Bragança", city: "Bragança", date: "2026-06-23", distance: 140, category: "Tradicional", rating: 4.5, why: "Tradição regional próxima" },
+      { name: "São João de Salinópolis", city: "Salinópolis", date: "2026-06-30", distance: 175, category: "Tradicional", rating: 4.5, why: "Boa distância e programação popular" },
+      { name: "São João Cultural de Belém", city: "Belém", date: "2026-06-28", distance: 210, category: "Cômica", rating: 4.9, why: "Alta avaliação popular" },
+      { name: "Festival Junino de Abaetetuba", city: "Abaetetuba", date: "2026-06-26", distance: 250, category: "Cômica", rating: 4.3, why: "Data próxima e programação variada" },
+      { name: "Sairé Junino", city: "Santarém", date: "2026-06-29", distance: 390, category: "Estilizada", rating: 4.7, why: "Destaque regional" },
+      { name: "Arraiá de Paragominas", city: "Paragominas", date: "2026-06-21", distance: 120, category: "Cômica", rating: 4.2, why: "Opção próxima para programação antecipada" }
+    ];
+
+    const cityDistances = {
+      "Capitão Poço": { "Capitão Poço": 12, "Belém": 210, "Castanhal": 88, "Bragança": 140, "Santarém": 390, "Marabá": 445, "Abaetetuba": 250, "Capanema": 70, "Salinópolis": 175, "Paragominas": 120 },
+      "Belém": { "Capitão Poço": 210, "Belém": 8, "Castanhal": 72, "Bragança": 212, "Santarém": 760, "Marabá": 570, "Abaetetuba": 65, "Capanema": 165, "Salinópolis": 220, "Paragominas": 300 },
+      "Castanhal": { "Capitão Poço": 88, "Belém": 72, "Castanhal": 6, "Bragança": 145, "Santarém": 690, "Marabá": 520, "Abaetetuba": 135, "Capanema": 92, "Salinópolis": 150, "Paragominas": 230 },
+      "Bragança": { "Capitão Poço": 140, "Belém": 212, "Castanhal": 145, "Bragança": 5, "Santarém": 760, "Marabá": 610, "Abaetetuba": 275, "Capanema": 72, "Salinópolis": 105, "Paragominas": 320 },
+      "Santarém": { "Capitão Poço": 390, "Belém": 760, "Castanhal": 690, "Bragança": 760, "Santarém": 10, "Marabá": 790, "Abaetetuba": 710, "Capanema": 720, "Salinópolis": 790, "Paragominas": 650 },
+      "Marabá": { "Capitão Poço": 445, "Belém": 570, "Castanhal": 520, "Bragança": 610, "Santarém": 790, "Marabá": 9, "Abaetetuba": 530, "Capanema": 560, "Salinópolis": 640, "Paragominas": 280 },
+      "Abaetetuba": { "Capitão Poço": 250, "Belém": 65, "Castanhal": 135, "Bragança": 275, "Santarém": 710, "Marabá": 530, "Abaetetuba": 7, "Capanema": 225, "Salinópolis": 285, "Paragominas": 330 },
+      "Capanema": { "Capitão Poço": 70, "Belém": 165, "Castanhal": 92, "Bragança": 72, "Santarém": 720, "Marabá": 560, "Abaetetuba": 225, "Capanema": 5, "Salinópolis": 82, "Paragominas": 250 },
+      "Salinópolis": { "Capitão Poço": 175, "Belém": 220, "Castanhal": 150, "Bragança": 105, "Santarém": 790, "Marabá": 640, "Abaetetuba": 285, "Capanema": 82, "Salinópolis": 4, "Paragominas": 330 },
+      "Paragominas": { "Capitão Poço": 120, "Belém": 300, "Castanhal": 230, "Bragança": 320, "Santarém": 650, "Marabá": 280, "Abaetetuba": 330, "Capanema": 250, "Salinópolis": 330, "Paragominas": 6 }
+    };
+
+    const formatter = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
+    let fontScale = 1;
+    let currentRole = "visitor";
+    let selectedOrganizerStars = 4;
+    let registeredJurors = [
+      { email: "maria@arraia.com", criterion: "Coreografia" },
+      { email: "joao@arraia.com", criterion: "Figurino" }
+    ];
+    let inscriptions = [
+      { name: "Estrela do Sertão", time: "19:00", pairs: 16, release: "Tema sobre a força das comunidades rurais e a colheita do milho.", status: "approved" },
+      { name: "Luar da Roça", time: "20:00", pairs: 14, release: "Romance junino contado entre xote, casamento matuto e celebração popular.", status: "pending" },
+      { name: "Riso Junino", time: "21:00", pairs: 12, release: "Apresentação cômica com narrativa de feira, tradição e disputa entre vilas.", status: "approved" },
+      { name: "Encanto do Xote", time: "22:00", pairs: 18, release: "Homenagem às festas de terreiro e aos mestres da cultura popular.", status: "declined" }
+    ];
+    let organizerEvaluations = {
+      "Riso Junino": { evaluated: true, stars: 4 }
+    };
+    let selectedJurorAssignmentId = "";
+    let contestFinished = false;
+    let jurorAssignments = [
+      { id: "alunado-coreografia", event: "Arraiá do Alunado", organizer: "UFRA Capitão Poço", criterion: "Coreografia", authorized: true, status: "Pendente" },
+      { id: "castanhal-figurino", event: "Festival Junino de Castanhal", organizer: "Prefeitura de Castanhal", criterion: "Figurino", authorized: false, status: "Aguardando autorização" }
+    ];
+    let jurorScores = [
+      { event: "Arraiá do Alunado", quadrilha: "Riso Junino", criterion: "Coreografia", score: 9.2, justification: "Boa execução e evolução no espaço." }
+    ];
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[char]);
+    }
+
+    function daysBetween(a, b) {
+      return Math.abs((new Date(a + "T00:00:00Z") - new Date(b + "T00:00:00Z")) / 86400000);
+    }
+
+    function selectedCategories() {
+      return [...document.querySelectorAll(".chip.active")].map((button) => button.dataset.category);
+    }
+
+    function eventDistance(eventItem) {
+      const city = document.getElementById("municipality").value;
+      return cityDistances[city]?.[eventItem.city] ?? eventItem.distance;
+    }
+
+    function scoreEvent(eventItem) {
+      const maxDistance = Number(document.getElementById("distance").value);
+      const chosenDate = document.getElementById("date").value;
+      const categories = selectedCategories();
+      const wDistance = Number(document.getElementById("wDistance").value);
+      const wDate = Number(document.getElementById("wDate").value);
+      const wCategory = Number(document.getElementById("wCategory").value);
+      const total = Math.max(1, wDistance + wDate + wCategory);
+      const distanceScore = Math.max(0, 1 - eventDistance(eventItem) / Math.max(1, maxDistance));
+      const dateScore = Math.max(0, 1 - daysBetween(chosenDate, eventItem.date) / 14);
+      const categoryScore = categories.length === 0 || categories.includes(eventItem.category) ? 1 : 0.25;
+      return Math.max(0, Math.round(((distanceScore * wDistance + dateScore * wDate + categoryScore * wCategory) / total) * 100));
+    }
+
+    function renderResults() {
+      const maxDistance = Number(document.getElementById("distance").value);
+      const originCity = document.getElementById("municipality").value;
+      const results = events
+        .map((item) => ({ ...item, currentDistance: eventDistance(item), score: scoreEvent(item) }))
+        .filter((item) => item.currentDistance <= maxDistance)
+        .sort((a, b) => b.score - a.score);
+
+      document.getElementById("resultCount").textContent = `${results.length} eventos`;
+      document.getElementById("results").innerHTML = results.length ? results.map((item) => `
+        <article class="event-card card p-5" tabindex="0">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 class="text-2xl font-black">${item.name}</h3>
+              <p class="muted mt-1">${item.city} - ${formatter.format(new Date(item.date + "T00:00:00Z"))}</p>
+            </div>
+            <strong class="rounded bg-amber-400 px-3 py-1 text-stone-900">${item.score}%</strong>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-4 text-sm font-bold text-stone-700">
+            <span class="inline-flex items-center gap-1"><i data-lucide="map-pin" class="h-4 w-4 text-red-700"></i>${item.currentDistance} km</span>
+            <span class="inline-flex items-center gap-1"><i data-lucide="star" class="h-4 w-4 text-amber-600"></i>${item.rating.toFixed(1)}</span>
+            <span>${item.category}</span>
+          </div>
+          <div class="mt-4 rounded border border-amber-200 bg-amber-50/90 p-3 text-sm">
+            <p class="flex items-center gap-2 font-black text-stone-900"><i data-lucide="route" class="h-4 w-4 text-red-700"></i>Trajeto</p>
+            <p class="mt-1 text-stone-700">${originCity} até ${item.city} - ${item.currentDistance} km estimados</p>
+          </div>
+          <p class="mt-3 text-sm font-bold text-red-700">${item.why}</p>
+          <button class="btn-primary focusable mt-4 px-4 py-2" type="button" onclick="showScreen('event')">Ver evento</button>
+        </article>
+      `).join("") : '<div class="card p-6 text-center font-bold">Nenhum concurso disponível para esta busca.</div>';
+
+      document.getElementById("liveRegion").textContent = results.length ? `${results.length} eventos encontrados.` : "Nenhum concurso disponível para esta busca.";
+      lucide.createIcons();
+    }
+
+    function recalculate() {
+      ["distance", "wDistance", "wDate", "wCategory"].forEach((id) => {
+        const target = document.getElementById(id + "Value");
+        if (target) target.textContent = document.getElementById(id).value;
+      });
+      renderResults();
+    }
+
+    function searchEvents() {
+      recalculate();
+    }
+
+    function toggleCategory(button) {
+      button.classList.toggle("active");
+      recalculate();
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
+      document.getElementById(screenId).classList.add("active");
+      if (screenId === "event") renderPublicRanking();
+
+      const labelMap = { visitor: "Início", event: "Evento", login: "Login", register: "Login", "register-representative": "Login", forgot: "Login", organizer: "", representative: "", juror: "" };
+      document.querySelectorAll(".nav-link").forEach((button) => {
+        button.classList.toggle("active", Boolean(labelMap[screenId]) && button.textContent.includes(labelMap[screenId]));
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function setSession(role) {
+      currentRole = role;
+      const isOrganizer = role === "organizer";
+      const isLoggedIn = role !== "visitor";
+      document.getElementById("navPanel").classList.toggle("hidden", !isOrganizer);
+      document.getElementById("navLogin").classList.toggle("hidden", isLoggedIn);
+      document.getElementById("navLogout").classList.toggle("hidden", !isLoggedIn);
+    }
+
+    function loginOrganizer() {
+      setSession("organizer");
+      showScreen("organizer");
+      openOrganizerTab("org-dashboard");
+      document.getElementById("liveRegion").textContent = "Área do organizador aberta.";
+    }
+
+    function registerOrganizer() {
+      setSession("organizer");
+      showScreen("organizer");
+      openOrganizerTab("org-dashboard");
+      document.getElementById("liveRegion").textContent = "Cadastro criado e área do organizador aberta.";
+    }
+
+    function loginRepresentative() {
+      setSession("representative");
+      showScreen("representative");
+      openRepresentativeTab("rep-registered");
+      document.getElementById("liveRegion").textContent = "Área do representante aberta.";
+    }
+
+    function registerRepresentative() {
+      setSession("representative");
+      showScreen("representative");
+      openRepresentativeTab("rep-registered");
+      document.getElementById("liveRegion").textContent = "Cadastro de representante criado.";
+    }
+
+    function openRepresentativeTab(tabId) {
+      const button = document.querySelector(`[data-rep-target="${tabId}"]`);
+      if (button) showRepresentativeTab(tabId, button);
+    }
+
+    function showRepresentativeTab(tabId, button) {
+      document.querySelectorAll(".rep-tab").forEach((tab) => tab.classList.add("hidden"));
+      document.getElementById(tabId).classList.remove("hidden");
+      document.querySelectorAll(".rep-nav").forEach((tab) => tab.classList.remove("active"));
+      button.classList.add("active");
+      if (tabId === "rep-results") renderRepresentativeResults();
+      document.getElementById("liveRegion").textContent = "Aba do representante aberta.";
+    }
+
+    function requestRepresentativeRegistration() {
+      document.getElementById("liveRegion").textContent = "Solicitação enviada com a documentação salva da quadrilha.";
+    }
+
+    function saveRepresentativeDocuments() {
+      document.getElementById("liveRegion").textContent = "Documentação da quadrilha salva para envio automático.";
+    }
+
+    function showAuthForm(profile) {
+      const isOrganizer = profile === "organizer";
+      const isRepresentative = profile === "representative";
+      document.getElementById("organizerLoginForm").classList.toggle("hidden", !isOrganizer);
+      document.getElementById("representativeLoginForm").classList.toggle("hidden", !isRepresentative);
+      document.getElementById("organizerChoice").classList.toggle("active", isOrganizer);
+      document.getElementById("representativeChoice").classList.toggle("active", isRepresentative);
+      document.getElementById("organizerRegisterLink").classList.toggle("hidden", !isOrganizer);
+      document.getElementById("representativeRegisterLink").classList.toggle("hidden", !isRepresentative);
+    }
+
+    function logout() {
+      setSession("visitor");
+      showScreen("visitor");
+      document.getElementById("liveRegion").textContent = "Sessão encerrada.";
+    }
+
+    function showOrganizerPanel() {
+      if (currentRole !== "organizer") return;
+      showScreen("organizer");
+      openOrganizerTab("org-dashboard");
+    }
+
+    function openJudgingArea() {
+      setSession("organizer");
+      showScreen("juror");
+      showJurorAssignments();
+      renderJurorAssignments();
+      document.getElementById("liveRegion").textContent = "Área de julgamento aberta.";
+    }
+
+    function openOrganizerTab(tabId) {
+      const button = document.querySelector(`[data-tab-target="${tabId}"]`);
+      if (button) showOrganizerTab(tabId, button);
+    }
+
+    function approvedQuadrilhas() {
+      return inscriptions.filter((item) => item.status === "approved");
+    }
+
+    function renderJurorAssignments() {
+      const list = document.getElementById("jurorAssignments");
+      if (!list) return;
+      list.innerHTML = jurorAssignments.map((assignment) => {
+        const isAuthorized = assignment.authorized;
+        return `
+          <div class="flex flex-wrap items-center justify-between gap-4 py-5">
+            <div>
+              <strong>${escapeHTML(assignment.event)}</strong><br>
+              <small class="muted">Organizador: ${escapeHTML(assignment.organizer)} - Quesito: ${escapeHTML(assignment.criterion)}</small><br>
+              <small class="muted">Status: ${escapeHTML(assignment.status)}</small>
+            </div>
+            <button class="${isAuthorized ? "btn-primary" : "btn-light"} focusable px-5 py-3" type="button" ${isAuthorized ? `onclick="openJurorAssignment('${assignment.id}')"` : "disabled"}>
+              ${isAuthorized ? "Entrar para julgar" : "Aguardando autorização"}
+            </button>
+          </div>
+        `;
+      }).join("");
+      lucide.createIcons();
+    }
+
+    function showJurorAssignments() {
+      const list = document.getElementById("jurorAssignments");
+      const panel = document.getElementById("jurorJudgingPanel");
+      if (!list || !panel) return;
+      list.classList.remove("hidden");
+      panel.classList.add("hidden");
+      renderJurorAssignments();
+    }
+
+    function openJurorAssignment(id) {
+      const assignment = jurorAssignments.find((item) => item.id === id);
+      if (!assignment || !assignment.authorized) return;
+      selectedJurorAssignmentId = id;
+      document.getElementById("jurorAssignments").classList.add("hidden");
+      document.getElementById("jurorJudgingPanel").classList.remove("hidden");
+      document.getElementById("jurorCriterionTitle").textContent = assignment.criterion;
+      document.getElementById("jurorEventInfo").textContent = `${assignment.event} - autorizado pelo organizador`;
+      renderJurorQuadrilhas();
+      document.getElementById("liveRegion").textContent = "Tela de julgamento aberta.";
+    }
+
+    function renderJurorQuadrilhas() {
+      const quadrilhas = approvedQuadrilhas();
+      const list = document.getElementById("jurorQuadrilhaList");
+      const select = document.getElementById("jurorQuadrilha");
+      if (!list || !select) return;
+      select.innerHTML = quadrilhas.map((item) => `<option>${escapeHTML(item.name)}</option>`).join("");
+      list.innerHTML = quadrilhas.length ? quadrilhas.map((item, index) => `
+        <button class="${index === 0 ? "btn-primary" : "btn-light"} focusable w-full px-4 py-3 text-left" type="button" onclick="selectJurorQuadrilha('${encodeURIComponent(item.name)}')">
+          ${escapeHTML(item.name)}
+        </button>
+      `).join("") : '<div class="rounded border border-stone-200 bg-white/70 p-4 text-sm font-bold">Nenhuma quadrilha deferida para julgamento.</div>';
+    }
+
+    function selectJurorQuadrilha(encodedName) {
+      document.getElementById("jurorQuadrilha").value = decodeURIComponent(encodedName);
+      document.getElementById("liveRegion").textContent = "Quadrilha selecionada para julgamento.";
+    }
+
+    function parseScore(value) {
+      return Number(String(value).replace(",", "."));
+    }
+
+    function formatScore(value) {
+      return Number(value).toFixed(1).replace(".", ",");
+    }
+
+    function saveJurorScore() {
+      const assignment = jurorAssignments.find((item) => item.id === selectedJurorAssignmentId);
+      const quadrilha = document.getElementById("jurorQuadrilha").value;
+      const score = parseScore(document.getElementById("jurorScore").value);
+      const justification = document.getElementById("jurorJustification").value.trim();
+      if (!assignment || !quadrilha) return;
+      if (Number.isNaN(score) || score < 6 || score > 10) {
+        document.getElementById("liveRegion").textContent = "Informe uma nota entre 6 e 10.";
+        return;
+      }
+      if (!justification) {
+        document.getElementById("liveRegion").textContent = "Informe a justificativa da nota.";
+        return;
+      }
+      const existing = jurorScores.find((item) => item.event === assignment.event && item.quadrilha === quadrilha && item.criterion === assignment.criterion);
+      if (existing) {
+        existing.score = score;
+        existing.justification = justification;
+      } else {
+        jurorScores.push({ event: assignment.event, quadrilha, criterion: assignment.criterion, score, justification });
+      }
+      assignment.status = "Enviado";
+      document.getElementById("jurorScore").value = "9,5";
+      document.getElementById("jurorJustification").value = "";
+      renderRanking();
+      renderRepresentativeResults();
+      showJurorAssignments();
+      document.getElementById("liveRegion").textContent = "Nota e justificativa salvas e enviadas para o ranking.";
+    }
+
+    function previewCover(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById("coverPreview").src = reader.result;
+        document.getElementById("coverPreview").classList.remove("hidden");
+        document.getElementById("coverEmpty").classList.add("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setOrganizerStars(total) {
+      selectedOrganizerStars = total;
+      document.querySelectorAll(".org-rating-star").forEach((star, index) => {
+        star.classList.toggle("text-amber-500", index < total);
+        star.classList.toggle("text-stone-300", index >= total);
+      });
+      document.getElementById("liveRegion").textContent = `${total} estrelas selecionadas.`;
+    }
+
+    function renderJurors() {
+      const list = document.getElementById("jurorList");
+      if (!list) return;
+      list.innerHTML = registeredJurors.length ? registeredJurors.map((juror) => `
+        <div class="flex flex-wrap items-center justify-between gap-3 py-4">
+          <span><strong>${escapeHTML(juror.email)}</strong><br><small class="muted">Quesito: ${escapeHTML(juror.criterion)}</small></span>
+          <button class="btn-light focusable px-4 py-2" type="button" onclick="focusNewJuror()">Adicionar mais</button>
+        </div>
+      `).join("") : '<div class="py-4 font-bold">Nenhum jurado vinculado ainda.</div>';
+      lucide.createIcons();
+    }
+
+    function addJuror() {
+      const email = document.getElementById("juryEmail").value.trim();
+      const criterion = document.getElementById("juryCriterion").value.trim();
+      if (!email || !criterion) {
+        document.getElementById("liveRegion").textContent = "Informe o e-mail do jurado e o quesito.";
+        return;
+      }
+      registeredJurors.push({ email, criterion });
+      jurorAssignments.push({
+        id: `alunado-${Date.now()}`,
+        event: "Arraiá do Alunado",
+        organizer: "UFRA Capitão Poço",
+        criterion,
+        authorized: true,
+        status: "Pendente"
+      });
+      document.getElementById("juryEmail").value = "";
+      document.getElementById("juryCriterion").value = "";
+      renderJurors();
+      renderJurorAssignments();
+      document.getElementById("liveRegion").textContent = "Jurado vinculado ao evento.";
+    }
+
+    function focusNewJuror() {
+      document.getElementById("juryEmail").focus();
+      document.getElementById("liveRegion").textContent = "Informe o e-mail do próximo jurado.";
+    }
+
+    function quadrilhaSummary(item, timeLabel = "Horário cadastrado") {
+      return `
+        <div>
+          <strong>${escapeHTML(item.name)}</strong><br>
+          <small class="muted">${timeLabel}: ${escapeHTML(item.time)} - ${escapeHTML(item.pairs)} pares</small><br>
+          <small class="muted">Release: ${escapeHTML(item.release)}</small>
+        </div>
+      `;
+    }
+
+    function renderInscriptions() {
+      const pending = document.getElementById("pendingInscriptions");
+      const approved = document.getElementById("approvedInscriptions");
+      const declined = document.getElementById("declinedInscriptions");
+      if (!pending || !approved || !declined) return;
+
+      const pendingItems = inscriptions.filter((item) => item.status === "pending");
+      const approvedItems = inscriptions.filter((item) => item.status === "approved");
+      const declinedItems = inscriptions.filter((item) => item.status === "declined");
+
+      pending.innerHTML = pendingItems.length ? pendingItems.map((item) => {
+        const encodedName = encodeURIComponent(item.name);
+        return `
+          <div class="flex flex-wrap items-center justify-between gap-3 py-4">
+            ${quadrilhaSummary(item, "Horário solicitado")}
+            <span class="flex gap-2">
+              <button class="btn-light focusable px-4 py-2" type="button" onclick="resolveInscription('${encodedName}', 'declined')">Indeferir</button>
+              <button class="btn-primary focusable px-4 py-2" type="button" onclick="resolveInscription('${encodedName}', 'approved')">Deferir</button>
+            </span>
+          </div>
+        `;
+      }).join("") : '<div class="py-4 font-bold">Nenhuma inscrição aguardando validação.</div>';
+
+      approved.innerHTML = approvedItems.length ? approvedItems.map((item) => `
+        <div class="flex flex-wrap items-center justify-between gap-3 py-4">
+          ${quadrilhaSummary(item, "Horário cadastrado")}
+          <span class="rounded bg-amber-400 px-3 py-1 text-sm font-black text-stone-900">Participante</span>
+        </div>
+      `).join("") : '<div class="py-4 font-bold">Nenhuma quadrilha deferida ainda.</div>';
+
+      declined.innerHTML = declinedItems.length ? declinedItems.map((item) => `
+        <div class="flex flex-wrap items-center justify-between gap-3 py-4">
+          ${quadrilhaSummary(item, "Horário solicitado")}
+          <span class="rounded bg-stone-200 px-3 py-1 text-sm font-black text-stone-700">Indeferida</span>
+        </div>
+      `).join("") : '<div class="py-4 font-bold">Nenhuma inscrição indeferida.</div>';
+
+      renderEvaluationList();
+    }
+
+    function resolveInscription(encodedName, status) {
+      const name = decodeURIComponent(encodedName);
+      const target = inscriptions.find((item) => item.name === name);
+      if (!target) return;
+      target.status = status;
+      if (status === "approved" && !organizerEvaluations[name]) {
+        organizerEvaluations[name] = { evaluated: false, stars: 0 };
+      }
+      renderInscriptions();
+      openOrganizerTab(status === "approved" ? "org-participants" : "org-declined");
+      document.getElementById("liveRegion").textContent = status === "approved" ? "Inscrição deferida e movida para participantes." : "Inscrição indeferida e movida para indeferidas.";
+    }
+
+    function renderEvaluationList() {
+      const list = document.getElementById("evaluationList");
+      if (!list) return;
+      const participants = inscriptions.filter((item) => item.status === "approved");
+      list.innerHTML = participants.length ? participants.map((item) => {
+        const evaluation = organizerEvaluations[item.name] || { evaluated: false, stars: 0 };
+        const encodedName = encodeURIComponent(item.name);
+        const statusText = evaluation.evaluated ? `${evaluation.stars} estrelas` : "Não avaliada";
+        const actionText = evaluation.evaluated ? "Editar avaliação" : "Avaliar";
+        return `
+          <div class="flex flex-wrap items-center justify-between gap-3 py-4">
+            <div>
+              ${quadrilhaSummary(item, "Horário cadastrado")}
+              <small class="muted">Avaliação: ${statusText}</small>
+            </div>
+            <button class="btn-primary focusable px-4 py-2" type="button" onclick="startOrganizerEvaluation('${encodedName}')">${actionText}</button>
+          </div>
+        `;
+      }).join("") : '<div class="py-4 font-bold">Nenhuma quadrilha participante para avaliar.</div>';
+    }
+
+    function startOrganizerEvaluation(encodedName) {
+      const name = decodeURIComponent(encodedName);
+      const evaluation = organizerEvaluations[name] || { evaluated: false, stars: 4 };
+      selectedOrganizerStars = evaluation.stars || 4;
+      document.getElementById("evaluationQuadrilha").value = name;
+      document.getElementById("evaluationTitle").textContent = `Avaliar ${name}`;
+      document.getElementById("evaluationList").classList.add("hidden");
+      document.getElementById("evaluationForm").classList.remove("hidden");
+      setOrganizerStars(selectedOrganizerStars);
+    }
+
+    function showEvaluationList() {
+      const list = document.getElementById("evaluationList");
+      const form = document.getElementById("evaluationForm");
+      if (!list || !form) return;
+      form.classList.add("hidden");
+      list.classList.remove("hidden");
+      renderEvaluationList();
+    }
+
+    function saveOrganizerEvaluation() {
+      const name = document.getElementById("evaluationQuadrilha").value;
+      if (!name) return;
+      organizerEvaluations[name] = { evaluated: true, stars: selectedOrganizerStars };
+      showEvaluationList();
+      document.getElementById("liveRegion").textContent = "Avaliação salva. Você voltou para a lista de quadrilhas avaliadas e pendentes.";
+    }
+
+    function scoreAverageForQuadrilha(name) {
+      const scores = jurorScores.filter((item) => item.event === "Arraiá do Alunado" && item.quadrilha === name);
+      if (!scores.length) return null;
+      return scores.reduce((sum, item) => sum + item.score, 0) / scores.length;
+    }
+
+    function rankingData() {
+      return approvedQuadrilhas()
+        .map((item) => ({ ...item, average: scoreAverageForQuadrilha(item.name) }))
+        .sort((a, b) => {
+          if (a.average === null) return 1;
+          if (b.average === null) return -1;
+          return b.average - a.average;
+        });
+    }
+
+    function renderRanking() {
+      const rows = document.getElementById("rankingRows");
+      const status = document.getElementById("rankingStatus");
+      if (!rows || !status) return;
+      const ranking = rankingData();
+      if (!contestFinished) {
+        status.textContent = "As notas dos jurados já podem ser recebidas. O ranking final só aparece após finalizar o concurso.";
+        rows.innerHTML = '<li class="py-4 font-bold">Finalize o concurso para liberar o ranking oficial.</li>';
+        return;
+      }
+      status.textContent = "Concurso finalizado. Ranking calculado com as notas enviadas pelos jurados.";
+      rows.innerHTML = ranking.length ? ranking.map((item, index) => `
+        <li class="flex flex-wrap items-center justify-between gap-3 py-4">
+          <span>${index + 1}. ${escapeHTML(item.name)}<br><small class="muted">${escapeHTML(item.pairs)} pares - ${escapeHTML(item.time)}</small></span>
+          <strong>${item.average === null ? "Aguardando notas" : formatScore(item.average)}</strong>
+        </li>
+      `).join("") : '<li class="py-4 font-bold">Nenhuma quadrilha participante para ranquear.</li>';
+    }
+
+    function finishContest() {
+      contestFinished = true;
+      renderRanking();
+      renderPublicRanking();
+      renderRepresentativeResults();
+      document.getElementById("liveRegion").textContent = "Concurso finalizado. Ranking final liberado.";
+    }
+
+    function renderRepresentativeResults() {
+      const rankingRows = document.getElementById("representativeRankingRows");
+      const status = document.getElementById("representativeRankingStatus");
+      const scoreRows = document.getElementById("representativeScoreRows");
+      if (!rankingRows || !status || !scoreRows) return;
+      const ranking = rankingData();
+      const representativeQuadrilha = "Estrela do Sertão";
+      const scores = jurorScores.filter((item) => item.event === "Arraiá do Alunado" && item.quadrilha === representativeQuadrilha);
+      if (!contestFinished) {
+        status.textContent = "Ranking final aguardando finalização do evento.";
+        rankingRows.innerHTML = '<li class="muted">Ranking final ainda não liberado.</li>';
+        scoreRows.innerHTML = scores.length ? scores.map((item) => `
+          <tr>
+            <td class="py-3 font-bold">${escapeHTML(item.criterion)}</td>
+            <td class="py-3">${formatScore(item.score)}</td>
+            <td class="py-3">${escapeHTML(item.justification)}</td>
+          </tr>
+        `).join("") : '<tr><td class="py-3 font-bold" colspan="3">Notas individuais serão liberadas quando os jurados enviarem as avaliações.</td></tr>';
+        return;
+      }
+      status.textContent = "Ranking final liberado pelo organizador.";
+      rankingRows.innerHTML = ranking.map((item, index) => `<li><strong>${index + 1}.</strong> ${escapeHTML(item.name)} - ${item.average === null ? "sem nota" : formatScore(item.average)}</li>`).join("");
+      scoreRows.innerHTML = scores.length ? scores.map((item) => `
+        <tr>
+          <td class="py-3 font-bold">${escapeHTML(item.criterion)}</td>
+          <td class="py-3">${formatScore(item.score)}</td>
+          <td class="py-3">${escapeHTML(item.justification)}</td>
+        </tr>
+      `).join("") : '<tr><td class="py-3 font-bold" colspan="3">Esta quadrilha ainda não recebeu notas neste concurso.</td></tr>';
+    }
+
+    function renderPublicRanking() {
+      const targets = [
+        { rows: document.getElementById("publicRankingRows"), status: document.getElementById("publicRankingStatus") },
+        { rows: document.getElementById("jurorRankingRows"), status: document.getElementById("jurorRankingStatus") }
+      ].filter((target) => target.rows && target.status);
+      if (!targets.length) return;
+      if (!contestFinished) {
+        targets.forEach((target) => {
+          target.status.textContent = "Disponível após a finalização do evento.";
+          target.rows.innerHTML = '<li>Ranking ainda não liberado.</li>';
+        });
+        return;
+      }
+      const ranking = rankingData();
+      const html = ranking.map((item, index) => `<li><strong>${index + 1}.</strong> ${escapeHTML(item.name)} - ${item.average === null ? "sem nota" : formatScore(item.average)}</li>`).join("");
+      targets.forEach((target) => {
+        target.status.textContent = "Ranking final liberado.";
+        target.rows.innerHTML = html;
+      });
+    }
+
+    function showOrganizerTab(tabId, button) {
+      document.querySelectorAll(".org-tab").forEach((tab) => tab.classList.add("hidden"));
+      document.getElementById(tabId).classList.remove("hidden");
+      document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
+      button.classList.add("active");
+      if (tabId === "org-jury") renderJurors();
+      if (["org-inscriptions", "org-participants", "org-declined"].includes(tabId)) renderInscriptions();
+      if (tabId === "org-score") showEvaluationList();
+      if (tabId === "org-publish") renderRanking();
+    }
+
+    function adjustFont(delta) {
+      fontScale = Math.min(1.25, Math.max(0.9, fontScale + delta));
+      document.documentElement.style.setProperty("--font-scale", fontScale.toFixed(2));
+      document.getElementById("liveRegion").textContent = "Tamanho da fonte ajustado.";
+    }
+
+    function toggleContrast() {
+      document.body.classList.toggle("high-contrast");
+      document.getElementById("liveRegion").textContent = document.body.classList.contains("high-contrast") ? "Alto contraste ativado." : "Alto contraste desativado.";
+    }
+
+    renderJurors();
+    renderInscriptions();
+    renderJurorAssignments();
+    renderRanking();
+    renderPublicRanking();
+    renderRepresentativeResults();
+    showEvaluationList();
+    recalculate();
+    lucide.createIcons();
+  </script>
+</body>
+</html>

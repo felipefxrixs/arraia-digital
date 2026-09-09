@@ -1,0 +1,6 @@
+services:
+  arraia-digital:
+    build: .
+    container_name: arraia-digital
+    ports:
+      - "8080:80"

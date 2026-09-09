@@ -1,0 +1,7 @@
+.git
+.gitignore
+backups/
+*.pdf
+*.docx
+PROMPT.txt
+README.md
