@@ -3,4 +3,4 @@ services:
     build: .
     container_name: arraia-digital
     ports:
-      - "8080:80"
+      - "${APP_PORT:-8080}:80"

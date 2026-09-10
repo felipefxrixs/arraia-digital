@@ -27,6 +27,18 @@ Depois acesse:
 http://localhost:8080
 ```
 
+Se a porta 8080 ja estiver em uso, escolha outra porta:
+
+```bash
+APP_PORT=8081 docker compose up --build
+```
+
+No PowerShell do Windows:
+
+```powershell
+$env:APP_PORT=8081; docker compose up --build
+```
+
 ## Executar sem Docker
 
 Abra o arquivo `fluxo_visitante_arraia_digital.html` em um navegador.
