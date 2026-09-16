@@ -297,12 +297,22 @@
         #efe5d5;
     }
 
+    .google-map-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      filter: saturate(0.9) contrast(0.95);
+    }
+
     .event-map::before {
       content: "";
       position: absolute;
       inset: 12%;
       border: 1px dashed rgba(36, 31, 27, 0.18);
       border-radius: 6px;
+      pointer-events: none;
     }
 
     .map-pin-illustration {
@@ -317,6 +327,7 @@
       border-radius: 999px;
       background: rgba(207, 58, 23, 0.15);
       color: var(--red);
+      pointer-events: none;
     }
 
     .map-label {
@@ -328,6 +339,11 @@
       border-radius: 6px;
       background: rgba(255, 250, 242, 0.94);
       padding: 0.9rem;
+    }
+
+    .map-label a {
+      color: var(--red);
+      font-weight: 900;
     }
 
     .chat-box {
@@ -426,6 +442,14 @@
               <input id="distance" class="range-accent w-full" type="range" min="10" max="450" value="180" oninput="recalculate()" />
             </label>
 
+            <div class="rounded border border-stone-200 bg-white/70 p-3">
+              <button class="btn-light focusable flex w-full items-center justify-center gap-2 px-4 py-2 text-sm" type="button" onclick="useCurrentLocation()">
+                <i data-lucide="locate-fixed" class="h-4 w-4"></i>
+                Usar minha localização
+              </button>
+              <p id="currentLocationStatus" class="muted mt-2 text-xs">Sem localização atual. O cálculo usa a cidade selecionada.</p>
+            </div>
+
             <label class="block">
               <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Data</span>
               <input id="date" class="input focusable" type="date" value="2026-06-24" onchange="recalculate()" />
@@ -498,10 +522,14 @@
             <div class="mt-8">
               <h2 class="text-2xl font-black">Localização do concurso</h2>
               <div class="event-map mt-4" aria-label="Mapa ilustrativo do local do concurso">
+                <iframe id="eventGoogleMap" class="google-map-frame" title="Mapa do local do evento" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 <span class="map-pin-illustration" aria-hidden="true"><i data-lucide="map-pin" class="h-9 w-9"></i></span>
                 <div class="map-label">
                   <strong id="eventMapTitle">Local do evento</strong>
                   <p id="eventMapDescription" class="muted mt-1 text-sm">Mapa ilustrativo com a posição cadastrada para o concurso.</p>
+                  <a id="eventGoogleMapsLink" class="mt-2 inline-flex items-center gap-1 text-sm" href="https://www.google.com/maps" target="_blank" rel="noopener">
+                    Abrir no Google Maps <i data-lucide="external-link" class="h-3.5 w-3.5"></i>
+                  </a>
                 </div>
               </div>
             </div>
@@ -952,6 +980,12 @@
               <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Vagas</span><input id="eventVacanciesInput" class="input focusable" type="number" min="1" placeholder="12" /></label>
               <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Estilo principal</span><select id="eventCategoryInput" class="input focusable"><option>Tradicional</option><option>Estilizada</option><option>Cômica</option></select></label>
               <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Local do concurso</span><input id="eventLocationInput" class="input focusable" placeholder="Ex.: Praça Central" /></label>
+              <label class="block md:col-span-2"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Link do Google Maps</span><input id="eventMapsUrlInput" class="input focusable" placeholder="Cole aqui o link do local no Google Maps" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Latitude</span><input id="eventLatitudeInput" class="input focusable" inputmode="decimal" placeholder="-1.7469" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Longitude</span><input id="eventLongitudeInput" class="input focusable" inputmode="decimal" placeholder="-47.0593" /></label>
+              <div class="rounded border border-amber-200 bg-amber-50/90 p-4 text-sm text-stone-700 md:col-span-2">
+                Cole o link do Google Maps ou informe latitude e longitude para melhorar o cálculo por localização atual.
+              </div>
               <label class="block md:col-span-2">
                 <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Imagem de capa</span>
                 <input class="input focusable" type="file" accept="image/*" onchange="previewCover(event)" />
@@ -1102,6 +1136,7 @@
     const formatter = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
     const defaultEvent = { name: "Evento", city: "", date: "", category: "Tradicional", location: "", rating: 0, vacancies: 0 };
     let events = loadRecords("events", []);
+    let userLocation = loadRecords("userLocation", null);
     let fontScale = 1;
     let currentRole = "visitor";
     let selectedOrganizerStars = 4;
@@ -1130,6 +1165,7 @@
 
     function persistAppData() {
       saveRecords("events", events);
+      saveRecords("userLocation", userLocation);
       saveRecords("registeredJurors", registeredJurors);
       saveRecords("inscriptions", inscriptions);
       saveRecords("organizerEvaluations", organizerEvaluations);
@@ -1143,6 +1179,10 @@
     }
 
     function normalizeEventRecord(item) {
+      const mapsUrl = item.mapsUrl || item.googleMapsUrl || "";
+      const parsedCoordinates = parseCoordinatesFromMapsUrl(mapsUrl);
+      const latitude = normalizeCoordinate(item.latitude ?? item.lat ?? parsedCoordinates?.latitude);
+      const longitude = normalizeCoordinate(item.longitude ?? item.lng ?? parsedCoordinates?.longitude);
       return {
         id: item.id || makeId("evento"),
         name: item.name || "Evento sem nome",
@@ -1151,6 +1191,9 @@
         distance: Number(item.distance || 0),
         category: item.category || "Tradicional",
         location: item.location || "",
+        mapsUrl,
+        latitude,
+        longitude,
         rating: Number(item.rating || 0),
         vacancies: Number(item.vacancies || 0)
       };
@@ -1158,6 +1201,60 @@
 
     events = events.map(normalizeEventRecord);
     selectedEventId = events[0]?.id || "";
+
+    function normalizeCoordinate(value) {
+      if (value === null || value === undefined || value === "") return null;
+      const number = Number(String(value).replace(",", "."));
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function parseCoordinatesFromMapsUrl(url) {
+      const value = String(url || "");
+      const atMatch = value.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      if (atMatch) {
+        return { latitude: Number(atMatch[1]), longitude: Number(atMatch[2]) };
+      }
+      const markerMatch = value.match(/[?&]q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      if (markerMatch) {
+        return { latitude: Number(markerMatch[1]), longitude: Number(markerMatch[2]) };
+      }
+      const dataMatch = value.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+      if (dataMatch) {
+        return { latitude: Number(dataMatch[1]), longitude: Number(dataMatch[2]) };
+      }
+      return null;
+    }
+
+    function hasCoordinates(item) {
+      return Number.isFinite(item.latitude) && Number.isFinite(item.longitude);
+    }
+
+    function haversineKm(a, b) {
+      const earthRadiusKm = 6371;
+      const toRadians = (degrees) => degrees * Math.PI / 180;
+      const deltaLat = toRadians(b.latitude - a.latitude);
+      const deltaLng = toRadians(b.longitude - a.longitude);
+      const lat1 = toRadians(a.latitude);
+      const lat2 = toRadians(b.latitude);
+      const h = Math.sin(deltaLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) ** 2;
+      return 2 * earthRadiusKm * Math.asin(Math.sqrt(h));
+    }
+
+    function googleMapsQuery(eventItem) {
+      if (hasCoordinates(eventItem)) return `${eventItem.latitude},${eventItem.longitude}`;
+      return [eventItem.location, eventItem.city].filter(Boolean).join(", ");
+    }
+
+    function googleMapsUrl(eventItem) {
+      if (eventItem.mapsUrl) return eventItem.mapsUrl;
+      const query = googleMapsQuery(eventItem);
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query || eventItem.name)}`;
+    }
+
+    function googleMapsEmbedUrl(eventItem) {
+      const query = googleMapsQuery(eventItem) || eventItem.name;
+      return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
+    }
 
     function escapeHTML(value) {
       return String(value).replace(/[&<>"']/g, (char) => ({
@@ -1183,8 +1280,47 @@
 
     function eventDistance(eventItem) {
       const city = document.getElementById("municipality").value;
+      if (userLocation && hasCoordinates(eventItem)) {
+        return Math.max(0, Math.round(haversineKm(userLocation, eventItem)));
+      }
       if (normalizeText(city) === normalizeText(eventItem.city)) return 0;
       return cityDistances[city]?.[eventItem.city] ?? Number(eventItem.distance || 0);
+    }
+
+    function routeOriginLabel() {
+      return userLocation ? "Sua localização atual" : document.getElementById("municipality").value;
+    }
+
+    function updateCurrentLocationStatus() {
+      const status = document.getElementById("currentLocationStatus");
+      if (!status) return;
+      status.textContent = userLocation
+        ? `Localização atual ativa (${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}).`
+        : "Sem localização atual. O cálculo usa a cidade selecionada.";
+    }
+
+    function useCurrentLocation() {
+      if (!navigator.geolocation) {
+        document.getElementById("liveRegion").textContent = "Seu navegador não permite consultar localização atual.";
+        return;
+      }
+      document.getElementById("currentLocationStatus").textContent = "Solicitando permissão de localização...";
+      navigator.geolocation.getCurrentPosition((position) => {
+        userLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        };
+        saveRecords("userLocation", userLocation);
+        updateCurrentLocationStatus();
+        recalculate(true);
+        document.getElementById("liveRegion").textContent = "Localização atual ativada para calcular os quilômetros estimados.";
+      }, () => {
+        userLocation = null;
+        saveRecords("userLocation", userLocation);
+        updateCurrentLocationStatus();
+        recalculate(true);
+        document.getElementById("liveRegion").textContent = "Não foi possível acessar sua localização. O cálculo continua usando a cidade selecionada.";
+      }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 });
     }
 
     function scoreEvent(eventItem) {
@@ -1204,7 +1340,7 @@
     function recommendationReason(item) {
       const chosenDate = document.getElementById("date").value;
       const reasons = [];
-      if (eventDistance(item) === 0) reasons.push("na sua cidade");
+      if (eventDistance(item) === 0) reasons.push(userLocation ? "muito perto de você" : "na sua cidade");
       else reasons.push(`${eventDistance(item)} km de distância`);
       if (daysBetween(chosenDate, item.date) === 0) reasons.push("na data escolhida");
       if (selectedCategories().includes(item.category)) reasons.push(`estilo ${item.category.toLowerCase()}`);
@@ -1222,7 +1358,7 @@
     }
 
     function renderResults() {
-      const originCity = document.getElementById("municipality").value;
+      const originLabel = routeOriginLabel();
       const results = filteredEvents();
       const visibleResults = results.slice(0, visibleResultLimit);
       const hasMore = results.length > visibleResultLimit;
@@ -1245,7 +1381,7 @@
           </div>
           <div class="mt-4 rounded border border-amber-200 bg-amber-50/90 p-3 text-sm">
             <p class="flex items-center gap-2 font-black text-stone-900"><i data-lucide="route" class="h-4 w-4 text-red-700"></i>Trajeto</p>
-            <p class="mt-1 text-stone-700">${escapeHTML(originCity)} até ${escapeHTML(item.city)} - ${item.currentDistance} km estimados</p>
+            <p class="mt-1 text-stone-700">${escapeHTML(originLabel)} até ${escapeHTML(item.location || item.city)} - ${item.currentDistance} km estimados</p>
           </div>
           <p class="mt-3 text-sm font-bold text-red-700">${escapeHTML(recommendationReason(item))}</p>
           <button class="btn-primary focusable mt-4 px-4 py-2" type="button" onclick="openEventDetail('${item.id}')">Ver evento</button>
@@ -1300,6 +1436,8 @@
       document.getElementById("eventLocationMeta").textContent = `${location} - ${eventItem.city || "Cidade não informada"}`;
       document.getElementById("eventMapTitle").textContent = location;
       document.getElementById("eventMapDescription").textContent = `${eventItem.name} em ${eventItem.city || "cidade não informada"}. Mapa ilustrativo da localização cadastrada.`;
+      document.getElementById("eventGoogleMap").src = googleMapsEmbedUrl(eventItem);
+      document.getElementById("eventGoogleMapsLink").href = googleMapsUrl(eventItem);
 
       const approved = approvedQuadrilhas();
       document.getElementById("eventScheduleRows").innerHTML = approved.length ? approved.map((item) => `
@@ -1538,7 +1676,7 @@
     }
 
     function clearEventForm() {
-      ["eventNameInput", "eventCityInput", "eventDateInput", "eventVacanciesInput", "eventLocationInput"].forEach((id) => {
+      ["eventNameInput", "eventCityInput", "eventDateInput", "eventVacanciesInput", "eventLocationInput", "eventMapsUrlInput", "eventLatitudeInput", "eventLongitudeInput"].forEach((id) => {
         const input = document.getElementById(id);
         if (input) input.value = "";
       });
@@ -1554,6 +1692,10 @@
       const vacancies = Number(document.getElementById("eventVacanciesInput").value || 0);
       const category = document.getElementById("eventCategoryInput").value;
       const location = document.getElementById("eventLocationInput").value.trim();
+      const mapsUrl = document.getElementById("eventMapsUrlInput").value.trim();
+      const parsedCoordinates = parseCoordinatesFromMapsUrl(mapsUrl);
+      const latitude = normalizeCoordinate(document.getElementById("eventLatitudeInput").value) ?? parsedCoordinates?.latitude ?? null;
+      const longitude = normalizeCoordinate(document.getElementById("eventLongitudeInput").value) ?? parsedCoordinates?.longitude ?? null;
 
       if (!name || !city || !date || !category || !location) {
         document.getElementById("liveRegion").textContent = "Preencha nome, cidade, data, estilo e local do evento.";
@@ -1567,6 +1709,9 @@
         date,
         category,
         location,
+        mapsUrl,
+        latitude,
+        longitude,
         vacancies,
         rating: 0,
         distance: cityDistances["Capitão Poço"]?.[city] ?? 0
@@ -1590,9 +1735,13 @@
         <div class="flex flex-wrap items-center justify-between gap-3 rounded bg-white/70 px-4 py-3">
           <span>
             <strong>${escapeHTML(item.name)}</strong><br>
-            <small class="muted">${escapeHTML(item.city)} - ${formatter.format(new Date(item.date + "T00:00:00Z"))} - ${escapeHTML(item.location)}</small>
+            <small class="muted">${escapeHTML(item.city)} - ${formatter.format(new Date(item.date + "T00:00:00Z"))} - ${escapeHTML(item.location)}</small><br>
+            <small class="muted">${hasCoordinates(item) ? `Coordenadas: ${item.latitude.toFixed(5)}, ${item.longitude.toFixed(5)}` : "Sem coordenadas cadastradas"}</small>
           </span>
-          <button class="btn-light focusable px-4 py-2" type="button" onclick="openEventDetail('${item.id}')">Ver</button>
+          <span class="flex flex-wrap gap-2">
+            <a class="btn-light focusable px-4 py-2" href="${escapeHTML(googleMapsUrl(item))}" target="_blank" rel="noopener">Maps</a>
+            <button class="btn-light focusable px-4 py-2" type="button" onclick="openEventDetail('${item.id}')">Ver</button>
+          </span>
         </div>
       `).join("") : '<div class="rounded bg-white/70 px-4 py-3 font-bold">Nenhum evento cadastrado ainda.</div>';
       lucide.createIcons();
@@ -1908,6 +2057,7 @@
     renderOrganizerEvents();
     renderEventOptions();
     updateDashboardCounts();
+    updateCurrentLocationStatus();
     renderInscriptions();
     renderJurorAssignments();
     renderRanking();
