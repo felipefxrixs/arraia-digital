@@ -283,6 +283,53 @@
       border-radius: 999px;
     }
 
+    .event-map {
+      position: relative;
+      min-height: 260px;
+      overflow: hidden;
+      border: 1px solid #d8cfc3;
+      border-radius: 6px;
+      background:
+        linear-gradient(90deg, transparent 0 18%, rgba(207, 58, 23, 0.18) 18% 20%, transparent 20% 100%),
+        linear-gradient(0deg, transparent 0 34%, rgba(14, 165, 233, 0.18) 34% 36%, transparent 36% 100%),
+        linear-gradient(135deg, transparent 0 48%, rgba(36, 31, 27, 0.22) 48% 50%, transparent 50% 100%),
+        linear-gradient(45deg, transparent 0 62%, rgba(217, 154, 22, 0.20) 62% 64%, transparent 64% 100%),
+        #efe5d5;
+    }
+
+    .event-map::before {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border: 1px dashed rgba(36, 31, 27, 0.18);
+      border-radius: 6px;
+    }
+
+    .map-pin-illustration {
+      position: absolute;
+      left: 52%;
+      top: 40%;
+      display: grid;
+      width: 74px;
+      height: 74px;
+      place-items: center;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      background: rgba(207, 58, 23, 0.15);
+      color: var(--red);
+    }
+
+    .map-label {
+      position: absolute;
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      border: 1px solid rgba(36, 31, 27, 0.12);
+      border-radius: 6px;
+      background: rgba(255, 250, 242, 0.94);
+      padding: 0.9rem;
+    }
+
     .chat-box {
       max-height: 280px;
       overflow-y: auto;
@@ -388,8 +435,8 @@
               <p class="mb-2 text-sm font-bold uppercase text-stone-600">Estilo</p>
               <div class="flex flex-wrap gap-2">
                 <button class="chip active btn-light focusable px-3 py-2 text-sm" type="button" data-category="Tradicional" onclick="toggleCategory(this)">Tradicional</button>
-                <button class="chip btn-light focusable px-3 py-2 text-sm" type="button" data-category="Estilizada" onclick="toggleCategory(this)">Estilizada</button>
-                <button class="chip btn-light focusable px-3 py-2 text-sm" type="button" data-category="Cômica" onclick="toggleCategory(this)">Cômica</button>
+                <button class="chip active btn-light focusable px-3 py-2 text-sm" type="button" data-category="Estilizada" onclick="toggleCategory(this)">Estilizada</button>
+                <button class="chip active btn-light focusable px-3 py-2 text-sm" type="button" data-category="Cômica" onclick="toggleCategory(this)">Cômica</button>
               </div>
             </div>
 
@@ -440,23 +487,21 @@
         <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
           <div>
             <p class="eyebrow">Evento público</p>
-            <h1 id="event-title" class="mt-3 text-4xl font-black">Arraiá do Alunado</h1>
-            <p class="muted mt-3 text-lg">Capitão Poço - 24/06/2026 - Entrada franca</p>
+            <h1 id="event-title" class="mt-3 text-4xl font-black">Evento</h1>
+            <p id="eventSummary" class="muted mt-3 text-lg">Selecione um evento na tela inicial.</p>
 
             <div class="mt-8">
               <h2 class="text-2xl font-black">Cronograma</h2>
-              <div class="mt-4 divide-y divide-stone-200 border-y border-stone-200">
-                <div class="grid grid-cols-[80px_1fr] gap-4 py-4">
-                  <strong class="text-red-700">19:00</strong>
-                  <span>Estrela do Sertão - Tradicional</span>
-                </div>
-                <div class="grid grid-cols-[80px_1fr] gap-4 py-4">
-                  <strong class="text-red-700">20:00</strong>
-                  <span>Luar da Roça - Estilizada</span>
-                </div>
-                <div class="grid grid-cols-[80px_1fr] gap-4 py-4">
-                  <strong class="text-red-700">21:00</strong>
-                  <span>Riso Junino - Cômica</span>
+              <div id="eventScheduleRows" class="mt-4 divide-y divide-stone-200 border-y border-stone-200"></div>
+            </div>
+
+            <div class="mt-8">
+              <h2 class="text-2xl font-black">Localização do concurso</h2>
+              <div class="event-map mt-4" aria-label="Mapa ilustrativo do local do concurso">
+                <span class="map-pin-illustration" aria-hidden="true"><i data-lucide="map-pin" class="h-9 w-9"></i></span>
+                <div class="map-label">
+                  <strong id="eventMapTitle">Local do evento</strong>
+                  <p id="eventMapDescription" class="muted mt-1 text-sm">Mapa ilustrativo com a posição cadastrada para o concurso.</p>
                 </div>
               </div>
             </div>
@@ -464,6 +509,10 @@
 
           <aside class="space-y-3">
             <h2 class="text-2xl font-black">Informações públicas</h2>
+            <div class="rounded border border-stone-200 bg-white/70 p-4">
+              <p class="text-sm font-black uppercase text-stone-700">Local</p>
+              <p id="eventLocationMeta" class="muted mt-2 text-sm">Ainda não selecionado.</p>
+            </div>
             <button class="btn-light focusable flex w-full items-center justify-between px-4 py-3" type="button">
               Resultado oficial <i data-lucide="trophy" class="h-4 w-4" aria-hidden="true"></i>
             </button>
@@ -621,7 +670,7 @@
               </label>
               <label class="block">
                 <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Nome da quadrilha</span>
-                <input class="input focusable" type="text" placeholder="Ex.: Estrela do Sertão" required />
+                <input class="input focusable" type="text" placeholder="Ex.: Quadrilha Junina" required />
               </label>
               <label class="block">
                 <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Senha</span>
@@ -710,7 +759,7 @@
       <div class="grid gap-8 lg:grid-cols-[300px_1fr]">
         <aside class="card p-8">
           <p class="eyebrow">Representante</p>
-          <h1 id="representative-title" class="mt-3 text-3xl font-black">Estrela do Sertão</h1>
+          <h1 id="representative-title" class="mt-3 text-3xl font-black">Representante</h1>
           <p class="muted mt-3">Acesso por e-mail e senha. A mesma conta pode atuar como representante, organizador ou jurado vinculado quando tiver permissão.</p>
           <div class="mt-6 space-y-2">
             <button class="rep-nav active btn-light focusable w-full px-4 py-3 text-left" data-rep-target="rep-registered" type="button" onclick="showRepresentativeTab('rep-registered', this)">Concursos cadastrados</button>
@@ -730,20 +779,7 @@
             <p class="eyebrow">Minhas inscrições</p>
             <h2 class="mt-3 text-3xl font-black">Concursos em que se cadastrou</h2>
             <div class="mt-6 divide-y divide-stone-200 border-y border-stone-200">
-              <div class="flex flex-wrap items-center justify-between gap-3 py-4">
-                <span>
-                  <strong>Arraiá do Alunado</strong><br>
-                  <small class="muted">Capitão Poço - 24/06/2026 - Horário confirmado: 19:00</small>
-                </span>
-                <span class="rounded bg-green-100 px-3 py-1 text-sm font-black text-green-800">Deferida</span>
-              </div>
-              <div class="flex flex-wrap items-center justify-between gap-3 py-4">
-                <span>
-                  <strong>Festival Junino de Castanhal</strong><br>
-                  <small class="muted">Castanhal - 25/06/2026 - Horário confirmado: 20:00</small>
-                </span>
-                <span class="rounded bg-green-100 px-3 py-1 text-sm font-black text-green-800">Deferida</span>
-              </div>
+              <div class="py-4 font-bold">Nenhuma inscrição cadastrada ainda.</div>
             </div>
           </article>
 
@@ -751,30 +787,7 @@
             <p class="eyebrow">Disponíveis</p>
             <h2 class="mt-3 text-3xl font-black">Concursos para se cadastrar</h2>
             <div class="mt-6 grid gap-4 xl:grid-cols-2">
-              <div class="rounded border border-stone-200 bg-white/70 p-4">
-                <h3 class="text-xl font-black">Arraiá Regional de Bragança</h3>
-                <p class="muted mt-1 text-sm">Local: Arena Cultural de Bragança - 23/06/2026</p>
-                <p class="mt-3 text-sm"><strong>Vagas:</strong> 8 quadrilhas</p>
-                <p class="mt-1 text-sm"><strong>Horários:</strong> 19:00, 20:00, 21:00</p>
-                <div class="mt-4 flex flex-wrap gap-2">
-                  <button class="btn-light focusable inline-flex items-center gap-2 px-4 py-2" type="button">
-                    Regulamento <i data-lucide="file-text" class="h-4 w-4" aria-hidden="true"></i>
-                  </button>
-                  <button class="btn-primary focusable px-4 py-2" type="button" onclick="requestRepresentativeRegistration()">Solicitar participação</button>
-                </div>
-              </div>
-              <div class="rounded border border-stone-200 bg-white/70 p-4">
-                <h3 class="text-xl font-black">São João de Salinópolis</h3>
-                <p class="muted mt-1 text-sm">Local: Praça da Matriz - 30/06/2026</p>
-                <p class="mt-3 text-sm"><strong>Vagas:</strong> 10 quadrilhas</p>
-                <p class="mt-1 text-sm"><strong>Horários:</strong> 18:30, 19:30, 20:30</p>
-                <div class="mt-4 flex flex-wrap gap-2">
-                  <button class="btn-light focusable inline-flex items-center gap-2 px-4 py-2" type="button">
-                    Regulamento <i data-lucide="file-text" class="h-4 w-4" aria-hidden="true"></i>
-                  </button>
-                  <button class="btn-primary focusable px-4 py-2" type="button" onclick="requestRepresentativeRegistration()">Solicitar participação</button>
-                </div>
-              </div>
+              <div class="rounded border border-stone-200 bg-white/70 p-4 font-bold">Nenhum concurso disponível ainda.</div>
             </div>
           </article>
 
@@ -792,10 +805,7 @@
               <div class="mt-6 rounded border border-stone-200 bg-white/70 p-4">
                 <h3 class="font-black">Documentos salvos</h3>
                 <ul class="mt-3 space-y-2 text-sm text-stone-700">
-                  <li>RG do representante: enviado</li>
-                  <li>RG dos componentes: 32 arquivos</li>
-                  <li>Documentos das misses: 4 arquivos</li>
-                  <li>Release e anexos do tema: pendente de revisão</li>
+                  <li>Nenhum documento salvo ainda.</li>
                 </ul>
               </div>
             </div>
@@ -809,12 +819,12 @@
             <div class="representative-scroll mt-6">
               <div class="grid gap-4 lg:grid-cols-[260px_1fr]">
                 <div class="rounded border border-stone-200 bg-white/70 p-4">
-                  <h3 class="font-black">Arraiá do Alunado</h3>
+                  <h3 class="font-black">Evento selecionado</h3>
                   <p id="representativeRankingStatus" class="muted mt-2 text-sm">Ranking final aguardando finalização do evento.</p>
                   <ol id="representativeRankingRows" class="mt-3 space-y-2 text-sm"></ol>
                 </div>
                 <div class="overflow-x-auto rounded border border-stone-200 bg-white/70 p-4">
-                  <h3 class="mb-3 font-black">Notas da Estrela do Sertão</h3>
+                  <h3 class="mb-3 font-black">Notas da quadrilha</h3>
                   <table class="w-full min-w-[520px] text-left text-sm">
                     <thead class="text-xs uppercase text-stone-600">
                       <tr><th class="py-2">Quesito</th><th class="py-2">Nota</th><th class="py-2">Justificativa</th></tr>
@@ -830,8 +840,7 @@
             <p class="eyebrow">Chat</p>
             <h3 class="mt-3 text-2xl font-black">Chat com organizador</h3>
             <div class="chat-box mt-5 space-y-3 border-y border-stone-200 py-4">
-              <p class="max-w-[82%] rounded bg-white px-4 py-3 text-sm">Olá, gostaria de confirmar a documentação da quadrilha.</p>
-              <p class="ml-auto max-w-[82%] rounded bg-red-700 px-4 py-3 text-sm text-white">Recebemos sua solicitação. A validação será feita pela organização.</p>
+              <p class="rounded bg-white px-4 py-3 text-sm font-bold">Nenhuma mensagem iniciada ainda.</p>
             </div>
             <div class="mt-4 flex gap-3">
               <input class="input focusable" placeholder="Digite sua mensagem" />
@@ -859,7 +868,7 @@
             <aside>
               <p class="eyebrow">Quesito</p>
               <h2 id="jurorCriterionTitle" class="mt-2 text-2xl font-black">Coreografia</h2>
-              <p id="jurorEventInfo" class="muted mt-3 text-sm">Arraiá do Alunado - autorizado</p>
+              <p id="jurorEventInfo" class="muted mt-3 text-sm">Evento autorizado</p>
               <h3 class="mt-8 text-xl font-black">Quadrilhas</h3>
               <div id="jurorQuadrilhaList" class="mt-4 space-y-2"></div>
             </aside>
@@ -919,10 +928,10 @@
             <p class="muted mt-3">Você permanece logado até escolher sair.</p>
             <div class="mt-6 grid gap-4 md:grid-cols-3">
               <button class="btn-light focusable px-4 py-5 text-left" type="button" onclick="openOrganizerTab('org-event')">
-                <strong>Meus eventos</strong><br><span class="muted text-sm">1 evento criado</span>
+                <strong>Meus eventos</strong><br><span id="dashboardEventCount" class="muted text-sm">0 eventos criados</span>
               </button>
               <button class="btn-light focusable px-4 py-5 text-left" type="button" onclick="openJudgingArea()">
-                <strong>Concursos para julgar</strong><br><span class="muted text-sm">1 autorizado, 1 pendente</span>
+                <strong>Concursos para julgar</strong><br><span id="dashboardJuryCount" class="muted text-sm">0 vinculados</span>
               </button>
               <button class="btn-light focusable px-4 py-5 text-left" type="button" onclick="openOrganizerTab('org-publish')">
                 <strong>Comunicados</strong><br><span class="muted text-sm">Evento e representantes</span>
@@ -933,19 +942,16 @@
           <article id="org-event" class="org-tab hidden">
             <p class="eyebrow">Cadastro</p>
             <h2 class="mt-3 text-3xl font-black">Meus eventos</h2>
-            <div class="events-scroll mt-6 space-y-3 border-y border-stone-200 py-4">
-              <div class="flex flex-wrap items-center justify-between gap-3 rounded bg-white/70 px-4 py-3">
-                <span><strong>Arraiá do Alunado</strong><br><small class="muted">Criado por você - Capitão Poço</small></span>
-                <button class="btn-light focusable px-4 py-2" type="button">Editar</button>
-              </div>
-            </div>
+            <div id="organizerEventList" class="events-scroll mt-6 space-y-3 border-y border-stone-200 py-4"></div>
 
             <h3 class="mt-8 text-2xl font-black">Criar novo evento</h3>
             <div class="mt-6 grid gap-5 md:grid-cols-2">
-              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Nome</span><input class="input focusable" value="Arraiá do Alunado" /></label>
-              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Cidade</span><input class="input focusable" value="Capitão Poço" /></label>
-              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Data</span><input class="input focusable" type="date" value="2026-06-24" /></label>
-              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Vagas</span><input class="input focusable" type="number" value="12" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Nome</span><input id="eventNameInput" class="input focusable" placeholder="Ex.: Concurso Junino Municipal" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Cidade</span><input id="eventCityInput" class="input focusable" placeholder="Ex.: Capitão Poço" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Data</span><input id="eventDateInput" class="input focusable" type="date" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Vagas</span><input id="eventVacanciesInput" class="input focusable" type="number" min="1" placeholder="12" /></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Estilo principal</span><select id="eventCategoryInput" class="input focusable"><option>Tradicional</option><option>Estilizada</option><option>Cômica</option></select></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Local do concurso</span><input id="eventLocationInput" class="input focusable" placeholder="Ex.: Praça Central" /></label>
               <label class="block md:col-span-2">
                 <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Imagem de capa</span>
                 <input class="input focusable" type="file" accept="image/*" onchange="previewCover(event)" />
@@ -959,7 +965,7 @@
               <img id="coverPreview" class="hidden h-48 w-full object-cover" alt="Prévia da capa do evento" />
               <div id="coverEmpty" class="flex h-48 items-center justify-center text-sm font-bold uppercase text-stone-500">Prévia da capa</div>
             </div>
-            <button class="btn-primary focusable mt-6 px-5 py-3" type="button">Salvar evento</button>
+            <button class="btn-primary focusable mt-6 px-5 py-3" type="button" onclick="saveEvent()">Salvar evento</button>
           </article>
 
           <article id="org-jury" class="org-tab hidden">
@@ -968,7 +974,7 @@
             <p class="muted mt-3">Digite o e-mail do login cadastrado na plataforma e vincule ao quesito que ele vai julgar.</p>
             <div class="mt-6 grid gap-5 md:grid-cols-3">
               <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">E-mail do jurado</span><input id="juryEmail" class="input focusable" type="email" placeholder="jurado@email.com" /></label>
-              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Evento criado por você</span><select class="input focusable"><option>Arraiá do Alunado</option></select></label>
+              <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Evento criado por você</span><select id="juryEventSelect" class="input focusable"></select></label>
               <label class="block"><span class="mb-2 block text-sm font-bold uppercase text-stone-600">Quesito</span><input id="juryCriterion" class="input focusable" placeholder="Quesito do regulamento" /></label>
             </div>
             <div class="mt-6 flex flex-wrap gap-3">
@@ -1057,11 +1063,10 @@
             <h2 class="mt-3 text-3xl font-black">Chat com representante</h2>
             <label class="mt-6 block">
               <span class="mb-2 block text-sm font-bold uppercase text-stone-600">Quadrilha</span>
-              <select class="input focusable"><option>Estrela do Sertão</option><option>Luar da Roça</option></select>
+              <select class="input focusable"><option>Nenhuma quadrilha cadastrada</option></select>
             </label>
             <div class="chat-box mt-5 space-y-3 border-y border-stone-200 py-4">
-              <p class="max-w-[82%] rounded bg-white px-4 py-3 text-sm">Olá, gostaria de confirmar a documentação da quadrilha.</p>
-              <p class="ml-auto max-w-[82%] rounded bg-red-700 px-4 py-3 text-sm text-white">Recebemos sua solicitação. A validação será feita pela organização.</p>
+              <p class="rounded bg-white px-4 py-3 text-sm font-bold">Nenhuma mensagem iniciada ainda.</p>
             </div>
             <div class="mt-4 flex gap-3">
               <input class="input focusable" placeholder="Digite sua mensagem" />
@@ -1078,16 +1083,8 @@
   </footer>
 
   <script>
-    const events = [
-      { name: "Arraiá do Alunado", city: "Capitão Poço", date: "2026-06-24", distance: 12, category: "Tradicional", rating: 4.8, why: "Perto de você e na data escolhida" },
-      { name: "Festival Junino de Castanhal", city: "Castanhal", date: "2026-06-25", distance: 88, category: "Estilizada", rating: 4.6, why: "Boa data e estilo compatível" },
-      { name: "Arraiá Regional de Bragança", city: "Bragança", date: "2026-06-23", distance: 140, category: "Tradicional", rating: 4.5, why: "Tradição regional próxima" },
-      { name: "São João de Salinópolis", city: "Salinópolis", date: "2026-06-30", distance: 175, category: "Tradicional", rating: 4.5, why: "Boa distância e programação popular" },
-      { name: "São João Cultural de Belém", city: "Belém", date: "2026-06-28", distance: 210, category: "Cômica", rating: 4.9, why: "Alta avaliação popular" },
-      { name: "Festival Junino de Abaetetuba", city: "Abaetetuba", date: "2026-06-26", distance: 250, category: "Cômica", rating: 4.3, why: "Data próxima e programação variada" },
-      { name: "Sairé Junino", city: "Santarém", date: "2026-06-29", distance: 390, category: "Estilizada", rating: 4.7, why: "Destaque regional" },
-      { name: "Arraiá de Paragominas", city: "Paragominas", date: "2026-06-21", distance: 120, category: "Cômica", rating: 4.2, why: "Opção próxima para programação antecipada" }
-    ];
+    const STORAGE_PREFIX = "arraiaDigital.v2.";
+    const INITIAL_RESULT_LIMIT = 5;
 
     const cityDistances = {
       "Capitão Poço": { "Capitão Poço": 12, "Belém": 210, "Castanhal": 88, "Bragança": 140, "Santarém": 390, "Marabá": 445, "Abaetetuba": 250, "Capanema": 70, "Salinópolis": 175, "Paragominas": 120 },
@@ -1103,31 +1100,64 @@
     };
 
     const formatter = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
+    const defaultEvent = { name: "Evento", city: "", date: "", category: "Tradicional", location: "", rating: 0, vacancies: 0 };
+    let events = loadRecords("events", []);
     let fontScale = 1;
     let currentRole = "visitor";
     let selectedOrganizerStars = 4;
-    let registeredJurors = [
-      { email: "maria@arraia.com", criterion: "Coreografia" },
-      { email: "joao@arraia.com", criterion: "Figurino" }
-    ];
-    let inscriptions = [
-      { name: "Estrela do Sertão", time: "19:00", pairs: 16, release: "Tema sobre a força das comunidades rurais e a colheita do milho.", status: "approved" },
-      { name: "Luar da Roça", time: "20:00", pairs: 14, release: "Romance junino contado entre xote, casamento matuto e celebração popular.", status: "pending" },
-      { name: "Riso Junino", time: "21:00", pairs: 12, release: "Apresentação cômica com narrativa de feira, tradição e disputa entre vilas.", status: "approved" },
-      { name: "Encanto do Xote", time: "22:00", pairs: 18, release: "Homenagem às festas de terreiro e aos mestres da cultura popular.", status: "declined" }
-    ];
-    let organizerEvaluations = {
-      "Riso Junino": { evaluated: true, stars: 4 }
-    };
+    let visibleResultLimit = INITIAL_RESULT_LIMIT;
+    let selectedEventId = events[0]?.id || "";
+    let registeredJurors = loadRecords("registeredJurors", []);
+    let inscriptions = loadRecords("inscriptions", []);
+    let organizerEvaluations = loadRecords("organizerEvaluations", {});
     let selectedJurorAssignmentId = "";
-    let contestFinished = false;
-    let jurorAssignments = [
-      { id: "alunado-coreografia", event: "Arraiá do Alunado", organizer: "UFRA Capitão Poço", criterion: "Coreografia", authorized: true, status: "Pendente" },
-      { id: "castanhal-figurino", event: "Festival Junino de Castanhal", organizer: "Prefeitura de Castanhal", criterion: "Figurino", authorized: false, status: "Aguardando autorização" }
-    ];
-    let jurorScores = [
-      { event: "Arraiá do Alunado", quadrilha: "Riso Junino", criterion: "Coreografia", score: 9.2, justification: "Boa execução e evolução no espaço." }
-    ];
+    let contestFinished = loadRecords("contestFinished", false);
+    let jurorAssignments = loadRecords("jurorAssignments", []);
+    let jurorScores = loadRecords("jurorScores", []);
+
+    function loadRecords(key, fallback) {
+      try {
+        const saved = localStorage.getItem(STORAGE_PREFIX + key);
+        return saved ? JSON.parse(saved) : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function saveRecords(key, value) {
+      localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
+    }
+
+    function persistAppData() {
+      saveRecords("events", events);
+      saveRecords("registeredJurors", registeredJurors);
+      saveRecords("inscriptions", inscriptions);
+      saveRecords("organizerEvaluations", organizerEvaluations);
+      saveRecords("contestFinished", contestFinished);
+      saveRecords("jurorAssignments", jurorAssignments);
+      saveRecords("jurorScores", jurorScores);
+    }
+
+    function makeId(prefix) {
+      return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+    }
+
+    function normalizeEventRecord(item) {
+      return {
+        id: item.id || makeId("evento"),
+        name: item.name || "Evento sem nome",
+        city: item.city || "",
+        date: item.date || "",
+        distance: Number(item.distance || 0),
+        category: item.category || "Tradicional",
+        location: item.location || "",
+        rating: Number(item.rating || 0),
+        vacancies: Number(item.vacancies || 0)
+      };
+    }
+
+    events = events.map(normalizeEventRecord);
+    selectedEventId = events[0]?.id || "";
 
     function escapeHTML(value) {
       return String(value).replace(/[&<>"']/g, (char) => ({
@@ -1147,9 +1177,14 @@
       return [...document.querySelectorAll(".chip.active")].map((button) => button.dataset.category);
     }
 
+    function normalizeText(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
     function eventDistance(eventItem) {
       const city = document.getElementById("municipality").value;
-      return cityDistances[city]?.[eventItem.city] ?? eventItem.distance;
+      if (normalizeText(city) === normalizeText(eventItem.city)) return 0;
+      return cityDistances[city]?.[eventItem.city] ?? Number(eventItem.distance || 0);
     }
 
     function scoreEvent(eventItem) {
@@ -1166,20 +1201,39 @@
       return Math.max(0, Math.round(((distanceScore * wDistance + dateScore * wDate + categoryScore * wCategory) / total) * 100));
     }
 
-    function renderResults() {
+    function recommendationReason(item) {
+      const chosenDate = document.getElementById("date").value;
+      const reasons = [];
+      if (eventDistance(item) === 0) reasons.push("na sua cidade");
+      else reasons.push(`${eventDistance(item)} km de distância`);
+      if (daysBetween(chosenDate, item.date) === 0) reasons.push("na data escolhida");
+      if (selectedCategories().includes(item.category)) reasons.push(`estilo ${item.category.toLowerCase()}`);
+      return `Match por ${reasons.slice(0, 3).join(", ")}.`;
+    }
+
+    function filteredEvents() {
       const maxDistance = Number(document.getElementById("distance").value);
-      const originCity = document.getElementById("municipality").value;
-      const results = events
+      const categories = selectedCategories();
+      return events
         .map((item) => ({ ...item, currentDistance: eventDistance(item), score: scoreEvent(item) }))
         .filter((item) => item.currentDistance <= maxDistance)
+        .filter((item) => categories.length === 0 || categories.includes(item.category))
         .sort((a, b) => b.score - a.score);
+    }
+
+    function renderResults() {
+      const originCity = document.getElementById("municipality").value;
+      const results = filteredEvents();
+      const visibleResults = results.slice(0, visibleResultLimit);
+      const hasMore = results.length > visibleResultLimit;
 
       document.getElementById("resultCount").textContent = `${results.length} eventos`;
-      document.getElementById("results").innerHTML = results.length ? results.map((item) => `
+      document.getElementById("results").innerHTML = visibleResults.length ? `
+        ${visibleResults.map((item) => `
         <article class="event-card card p-5" tabindex="0">
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h3 class="text-2xl font-black">${item.name}</h3>
+              <h3 class="text-2xl font-black">${escapeHTML(item.name)}</h3>
               <p class="muted mt-1">${item.city} - ${formatter.format(new Date(item.date + "T00:00:00Z"))}</p>
             </div>
             <strong class="rounded bg-amber-400 px-3 py-1 text-stone-900">${item.score}%</strong>
@@ -1191,18 +1245,26 @@
           </div>
           <div class="mt-4 rounded border border-amber-200 bg-amber-50/90 p-3 text-sm">
             <p class="flex items-center gap-2 font-black text-stone-900"><i data-lucide="route" class="h-4 w-4 text-red-700"></i>Trajeto</p>
-            <p class="mt-1 text-stone-700">${originCity} até ${item.city} - ${item.currentDistance} km estimados</p>
+            <p class="mt-1 text-stone-700">${escapeHTML(originCity)} até ${escapeHTML(item.city)} - ${item.currentDistance} km estimados</p>
           </div>
-          <p class="mt-3 text-sm font-bold text-red-700">${item.why}</p>
-          <button class="btn-primary focusable mt-4 px-4 py-2" type="button" onclick="showScreen('event')">Ver evento</button>
+          <p class="mt-3 text-sm font-bold text-red-700">${escapeHTML(recommendationReason(item))}</p>
+          <button class="btn-primary focusable mt-4 px-4 py-2" type="button" onclick="openEventDetail('${item.id}')">Ver evento</button>
         </article>
-      `).join("") : '<div class="card p-6 text-center font-bold">Nenhum concurso disponível para esta busca.</div>';
+      `).join("")}
+        ${hasMore ? '<button class="btn-light focusable flex w-full items-center justify-center gap-2 px-5 py-3" type="button" onclick="showMoreEvents()"><i data-lucide="list-plus" class="h-5 w-5"></i>Mais eventos</button>' : ""}
+      ` : '<div class="card p-6 text-center font-bold">Nenhum concurso disponível para esta busca. Cadastre eventos no painel do organizador.</div>';
 
       document.getElementById("liveRegion").textContent = results.length ? `${results.length} eventos encontrados.` : "Nenhum concurso disponível para esta busca.";
       lucide.createIcons();
     }
 
-    function recalculate() {
+    function showMoreEvents() {
+      visibleResultLimit += INITIAL_RESULT_LIMIT;
+      renderResults();
+    }
+
+    function recalculate(resetLimit = true) {
+      if (resetLimit) visibleResultLimit = INITIAL_RESULT_LIMIT;
       ["distance", "wDistance", "wDate", "wCategory"].forEach((id) => {
         const target = document.getElementById(id + "Value");
         if (target) target.textContent = document.getElementById(id).value;
@@ -1211,18 +1273,52 @@
     }
 
     function searchEvents() {
-      recalculate();
+      recalculate(true);
     }
 
     function toggleCategory(button) {
       button.classList.toggle("active");
-      recalculate();
+      recalculate(true);
+    }
+
+    function currentEvent() {
+      return events.find((item) => item.id === selectedEventId) || events[0] || defaultEvent;
+    }
+
+    function openEventDetail(eventId) {
+      selectedEventId = eventId;
+      renderEventDetail();
+      showScreen("event");
+    }
+
+    function renderEventDetail() {
+      const eventItem = currentEvent();
+      const eventDate = eventItem.date ? formatter.format(new Date(eventItem.date + "T00:00:00Z")) : "Data não informada";
+      const location = eventItem.location || "Local não informado";
+      document.getElementById("event-title").textContent = eventItem.name;
+      document.getElementById("eventSummary").textContent = `${eventItem.city || "Cidade não informada"} - ${eventDate} - ${eventItem.category || "Estilo não informado"}`;
+      document.getElementById("eventLocationMeta").textContent = `${location} - ${eventItem.city || "Cidade não informada"}`;
+      document.getElementById("eventMapTitle").textContent = location;
+      document.getElementById("eventMapDescription").textContent = `${eventItem.name} em ${eventItem.city || "cidade não informada"}. Mapa ilustrativo da localização cadastrada.`;
+
+      const approved = approvedQuadrilhas();
+      document.getElementById("eventScheduleRows").innerHTML = approved.length ? approved.map((item) => `
+        <div class="grid grid-cols-[80px_1fr] gap-4 py-4">
+          <strong class="text-red-700">${escapeHTML(item.time || "--:--")}</strong>
+          <span>${escapeHTML(item.name)} - ${escapeHTML(item.category || eventItem.category || "Quadrilha")}</span>
+        </div>
+      `).join("") : '<div class="py-4 font-bold">Cronograma disponível após validar inscrições de quadrilhas.</div>';
+
+      lucide.createIcons();
     }
 
     function showScreen(screenId) {
       document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
       document.getElementById(screenId).classList.add("active");
-      if (screenId === "event") renderPublicRanking();
+      if (screenId === "event") {
+        renderEventDetail();
+        renderPublicRanking();
+      }
 
       const labelMap = { visitor: "Início", event: "Evento", login: "Login", register: "Login", "register-representative": "Login", forgot: "Login", organizer: "", representative: "", juror: "" };
       document.querySelectorAll(".nav-link").forEach((button) => {
@@ -1420,6 +1516,7 @@
         jurorScores.push({ event: assignment.event, quadrilha, criterion: assignment.criterion, score, justification });
       }
       assignment.status = "Enviado";
+      persistAppData();
       document.getElementById("jurorScore").value = "9,5";
       document.getElementById("jurorJustification").value = "";
       renderRanking();
@@ -1438,6 +1535,80 @@
         document.getElementById("coverEmpty").classList.add("hidden");
       };
       reader.readAsDataURL(file);
+    }
+
+    function clearEventForm() {
+      ["eventNameInput", "eventCityInput", "eventDateInput", "eventVacanciesInput", "eventLocationInput"].forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) input.value = "";
+      });
+      document.getElementById("eventCategoryInput").value = "Tradicional";
+      document.getElementById("coverPreview").classList.add("hidden");
+      document.getElementById("coverEmpty").classList.remove("hidden");
+    }
+
+    function saveEvent() {
+      const name = document.getElementById("eventNameInput").value.trim();
+      const city = document.getElementById("eventCityInput").value.trim();
+      const date = document.getElementById("eventDateInput").value;
+      const vacancies = Number(document.getElementById("eventVacanciesInput").value || 0);
+      const category = document.getElementById("eventCategoryInput").value;
+      const location = document.getElementById("eventLocationInput").value.trim();
+
+      if (!name || !city || !date || !category || !location) {
+        document.getElementById("liveRegion").textContent = "Preencha nome, cidade, data, estilo e local do evento.";
+        return;
+      }
+
+      const eventItem = normalizeEventRecord({
+        id: makeId("evento"),
+        name,
+        city,
+        date,
+        category,
+        location,
+        vacancies,
+        rating: 0,
+        distance: cityDistances["Capitão Poço"]?.[city] ?? 0
+      });
+      events.push(eventItem);
+      selectedEventId = eventItem.id;
+      contestFinished = false;
+      persistAppData();
+      clearEventForm();
+      renderOrganizerEvents();
+      renderEventOptions();
+      updateDashboardCounts();
+      recalculate(true);
+      document.getElementById("liveRegion").textContent = "Evento salvo e disponível na tela inicial.";
+    }
+
+    function renderOrganizerEvents() {
+      const list = document.getElementById("organizerEventList");
+      if (!list) return;
+      list.innerHTML = events.length ? events.map((item) => `
+        <div class="flex flex-wrap items-center justify-between gap-3 rounded bg-white/70 px-4 py-3">
+          <span>
+            <strong>${escapeHTML(item.name)}</strong><br>
+            <small class="muted">${escapeHTML(item.city)} - ${formatter.format(new Date(item.date + "T00:00:00Z"))} - ${escapeHTML(item.location)}</small>
+          </span>
+          <button class="btn-light focusable px-4 py-2" type="button" onclick="openEventDetail('${item.id}')">Ver</button>
+        </div>
+      `).join("") : '<div class="rounded bg-white/70 px-4 py-3 font-bold">Nenhum evento cadastrado ainda.</div>';
+      lucide.createIcons();
+    }
+
+    function renderEventOptions() {
+      const select = document.getElementById("juryEventSelect");
+      if (!select) return;
+      select.innerHTML = events.length ? events.map((item) => `<option value="${item.id}">${escapeHTML(item.name)}</option>`).join("") : '<option value="">Cadastre um evento primeiro</option>';
+    }
+
+    function updateDashboardCounts() {
+      const eventCount = document.getElementById("dashboardEventCount");
+      const juryCount = document.getElementById("dashboardJuryCount");
+      if (eventCount) eventCount.textContent = `${events.length} ${events.length === 1 ? "evento criado" : "eventos criados"}`;
+      if (juryCount) juryCount.textContent = `${jurorAssignments.length} ${jurorAssignments.length === 1 ? "vinculado" : "vinculados"}`;
     }
 
     function setOrganizerStars(total) {
@@ -1464,14 +1635,20 @@
     function addJuror() {
       const email = document.getElementById("juryEmail").value.trim();
       const criterion = document.getElementById("juryCriterion").value.trim();
+      const eventId = document.getElementById("juryEventSelect").value;
+      const eventItem = events.find((item) => item.id === eventId);
       if (!email || !criterion) {
         document.getElementById("liveRegion").textContent = "Informe o e-mail do jurado e o quesito.";
         return;
       }
+      if (!eventItem) {
+        document.getElementById("liveRegion").textContent = "Cadastre um evento antes de vincular jurados.";
+        return;
+      }
       registeredJurors.push({ email, criterion });
       jurorAssignments.push({
-        id: `alunado-${Date.now()}`,
-        event: "Arraiá do Alunado",
+        id: makeId("jurado"),
+        event: eventItem.name,
         organizer: "UFRA Capitão Poço",
         criterion,
         authorized: true,
@@ -1479,8 +1656,10 @@
       });
       document.getElementById("juryEmail").value = "";
       document.getElementById("juryCriterion").value = "";
+      persistAppData();
       renderJurors();
       renderJurorAssignments();
+      updateDashboardCounts();
       document.getElementById("liveRegion").textContent = "Jurado vinculado ao evento.";
     }
 
@@ -1547,6 +1726,7 @@
       if (status === "approved" && !organizerEvaluations[name]) {
         organizerEvaluations[name] = { evaluated: false, stars: 0 };
       }
+      persistAppData();
       renderInscriptions();
       openOrganizerTab(status === "approved" ? "org-participants" : "org-declined");
       document.getElementById("liveRegion").textContent = status === "approved" ? "Inscrição deferida e movida para participantes." : "Inscrição indeferida e movida para indeferidas.";
@@ -1597,12 +1777,14 @@
       const name = document.getElementById("evaluationQuadrilha").value;
       if (!name) return;
       organizerEvaluations[name] = { evaluated: true, stars: selectedOrganizerStars };
+      persistAppData();
       showEvaluationList();
       document.getElementById("liveRegion").textContent = "Avaliação salva. Você voltou para a lista de quadrilhas avaliadas e pendentes.";
     }
 
     function scoreAverageForQuadrilha(name) {
-      const scores = jurorScores.filter((item) => item.event === "Arraiá do Alunado" && item.quadrilha === name);
+      const selectedEventName = currentEvent().name;
+      const scores = jurorScores.filter((item) => item.event === selectedEventName && item.quadrilha === name);
       if (!scores.length) return null;
       return scores.reduce((sum, item) => sum + item.score, 0) / scores.length;
     }
@@ -1638,6 +1820,7 @@
 
     function finishContest() {
       contestFinished = true;
+      persistAppData();
       renderRanking();
       renderPublicRanking();
       renderRepresentativeResults();
@@ -1650,8 +1833,8 @@
       const scoreRows = document.getElementById("representativeScoreRows");
       if (!rankingRows || !status || !scoreRows) return;
       const ranking = rankingData();
-      const representativeQuadrilha = "Estrela do Sertão";
-      const scores = jurorScores.filter((item) => item.event === "Arraiá do Alunado" && item.quadrilha === representativeQuadrilha);
+      const representativeQuadrilha = "";
+      const scores = jurorScores.filter((item) => item.event === currentEvent().name && item.quadrilha === representativeQuadrilha);
       if (!contestFinished) {
         status.textContent = "Ranking final aguardando finalização do evento.";
         rankingRows.innerHTML = '<li class="muted">Ranking final ainda não liberado.</li>';
@@ -1702,9 +1885,12 @@
       document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
       button.classList.add("active");
       if (tabId === "org-jury") renderJurors();
+      if (tabId === "org-event") renderOrganizerEvents();
       if (["org-inscriptions", "org-participants", "org-declined"].includes(tabId)) renderInscriptions();
       if (tabId === "org-score") showEvaluationList();
       if (tabId === "org-publish") renderRanking();
+      renderEventOptions();
+      updateDashboardCounts();
     }
 
     function adjustFont(delta) {
@@ -1719,11 +1905,15 @@
     }
 
     renderJurors();
+    renderOrganizerEvents();
+    renderEventOptions();
+    updateDashboardCounts();
     renderInscriptions();
     renderJurorAssignments();
     renderRanking();
     renderPublicRanking();
     renderRepresentativeResults();
+    renderEventDetail();
     showEvaluationList();
     recalculate();
     lucide.createIcons();
