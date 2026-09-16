@@ -1133,6 +1133,19 @@
       "Paragominas": { "Capitão Poço": 120, "Belém": 300, "Castanhal": 230, "Bragança": 320, "Santarém": 650, "Marabá": 280, "Abaetetuba": 330, "Capanema": 250, "Salinópolis": 330, "Paragominas": 6 }
     };
 
+    const cityCoordinates = {
+      "Capitão Poço": { latitude: -1.7469, longitude: -47.0593 },
+      "Belém": { latitude: -1.4558, longitude: -48.4902 },
+      "Castanhal": { latitude: -1.2939, longitude: -47.9264 },
+      "Bragança": { latitude: -1.0536, longitude: -46.7656 },
+      "Santarém": { latitude: -2.4385, longitude: -54.6996 },
+      "Marabá": { latitude: -5.3815, longitude: -49.1327 },
+      "Abaetetuba": { latitude: -1.7218, longitude: -48.8788 },
+      "Capanema": { latitude: -1.1958, longitude: -47.1808 },
+      "Salinópolis": { latitude: -0.6136, longitude: -47.3561 },
+      "Paragominas": { latitude: -2.9956, longitude: -47.3527 }
+    };
+
     const formatter = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
     const defaultEvent = { name: "Evento", city: "", date: "", category: "Tradicional", location: "", rating: 0, vacancies: 0 };
     let events = loadRecords("events", []);
@@ -1229,6 +1242,29 @@
       return Number.isFinite(item.latitude) && Number.isFinite(item.longitude);
     }
 
+    function coordinatesForCity(city) {
+      return cityCoordinates[city] || null;
+    }
+
+    function coordinatesForEvent(eventItem) {
+      if (hasCoordinates(eventItem)) {
+        return {
+          latitude: eventItem.latitude,
+          longitude: eventItem.longitude,
+          precision: "local"
+        };
+      }
+      const cityCoordinate = coordinatesForCity(eventItem.city);
+      return cityCoordinate ? { ...cityCoordinate, precision: "cidade" } : null;
+    }
+
+    function originCoordinates() {
+      if (userLocation) return { ...userLocation, precision: "gps" };
+      const city = document.getElementById("municipality").value;
+      const cityCoordinate = coordinatesForCity(city);
+      return cityCoordinate ? { ...cityCoordinate, precision: "cidade" } : null;
+    }
+
     function haversineKm(a, b) {
       const earthRadiusKm = 6371;
       const toRadians = (degrees) => degrees * Math.PI / 180;
@@ -1279,16 +1315,51 @@
     }
 
     function eventDistance(eventItem) {
-      const city = document.getElementById("municipality").value;
-      if (userLocation && hasCoordinates(eventItem)) {
-        return Math.max(0, Math.round(haversineKm(userLocation, eventItem)));
+      return eventDistanceInfo(eventItem).km;
+    }
+
+    function eventDistanceInfo(eventItem) {
+      const selectedCity = document.getElementById("municipality").value;
+      const origin = originCoordinates();
+      const destination = coordinatesForEvent(eventItem);
+
+      if (!userLocation && normalizeText(selectedCity) === normalizeText(eventItem.city) && destination?.precision === "cidade") {
+        return { km: 0, source: "mesma-cidade" };
       }
-      if (normalizeText(city) === normalizeText(eventItem.city)) return 0;
-      return cityDistances[city]?.[eventItem.city] ?? Number(eventItem.distance || 0);
+
+      if (origin && destination) {
+        return {
+          km: Math.max(0, Math.round(haversineKm(origin, destination))),
+          source: origin.precision === "gps"
+            ? (destination.precision === "local" ? "gps-local" : "gps-cidade")
+            : (destination.precision === "local" ? "cidade-local" : "cidade-cidade")
+        };
+      }
+
+      if (normalizeText(selectedCity) === normalizeText(eventItem.city)) {
+        return { km: 0, source: "mesma-cidade" };
+      }
+
+      return {
+        km: cityDistances[selectedCity]?.[eventItem.city] ?? Number(eventItem.distance || 0),
+        source: "tabela"
+      };
     }
 
     function routeOriginLabel() {
       return userLocation ? "Sua localização atual" : document.getElementById("municipality").value;
+    }
+
+    function distanceSourceLabel(item) {
+      const labels = {
+        "gps-local": "GPS até o local exato",
+        "gps-cidade": "GPS até a cidade do evento",
+        "cidade-local": "Cidade escolhida até o local exato",
+        "cidade-cidade": "Entre cidades",
+        "mesma-cidade": "Mesma cidade",
+        "tabela": "Estimativa por cidade"
+      };
+      return labels[item.distanceSource] || "Estimativa";
     }
 
     function updateCurrentLocationStatus() {
@@ -1351,7 +1422,11 @@
       const maxDistance = Number(document.getElementById("distance").value);
       const categories = selectedCategories();
       return events
-        .map((item) => ({ ...item, currentDistance: eventDistance(item), score: scoreEvent(item) }))
+        .map((item) => {
+          const distance = eventDistanceInfo(item);
+          const hydrated = { ...item, currentDistance: distance.km, distanceSource: distance.source };
+          return { ...hydrated, score: scoreEvent(hydrated) };
+        })
         .filter((item) => item.currentDistance <= maxDistance)
         .filter((item) => categories.length === 0 || categories.includes(item.category))
         .sort((a, b) => b.score - a.score);
@@ -1382,6 +1457,7 @@
           <div class="mt-4 rounded border border-amber-200 bg-amber-50/90 p-3 text-sm">
             <p class="flex items-center gap-2 font-black text-stone-900"><i data-lucide="route" class="h-4 w-4 text-red-700"></i>Trajeto</p>
             <p class="mt-1 text-stone-700">${escapeHTML(originLabel)} até ${escapeHTML(item.location || item.city)} - ${item.currentDistance} km estimados</p>
+            <p class="mt-1 text-xs font-bold uppercase text-stone-500">${escapeHTML(distanceSourceLabel(item))}</p>
           </div>
           <p class="mt-3 text-sm font-bold text-red-700">${escapeHTML(recommendationReason(item))}</p>
           <button class="btn-primary focusable mt-4 px-4 py-2" type="button" onclick="openEventDetail('${item.id}')">Ver evento</button>
