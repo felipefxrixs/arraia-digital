@@ -1146,6 +1146,23 @@
       "Paragominas": { latitude: -2.9956, longitude: -47.3527 }
     };
 
+    const cityAliases = {
+      "capitao poco": "Capitão Poço",
+      "capitao poco pa": "Capitão Poço",
+      "capitao poco para": "Capitão Poço",
+      "belem": "Belém",
+      "belem pa": "Belém",
+      "belem para": "Belém",
+      "castanhal": "Castanhal",
+      "braganca": "Bragança",
+      "santarem": "Santarém",
+      "maraba": "Marabá",
+      "abaetetuba": "Abaetetuba",
+      "capanema": "Capanema",
+      "salinopolis": "Salinópolis",
+      "paragominas": "Paragominas"
+    };
+
     const formatter = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
     const defaultEvent = { name: "Evento", city: "", date: "", category: "Tradicional", location: "", rating: 0, vacancies: 0 };
     let events = loadRecords("events", []);
@@ -1243,7 +1260,7 @@
     }
 
     function coordinatesForCity(city) {
-      return cityCoordinates[city] || null;
+      return cityCoordinates[canonicalCityName(city)] || null;
     }
 
     function coordinatesForEvent(eventItem) {
@@ -1258,11 +1275,29 @@
       return cityCoordinate ? { ...cityCoordinate, precision: "cidade" } : null;
     }
 
+    function localDistanceHint(eventItem) {
+      if (canonicalCityName(eventItem.city) !== "Capitão Poço") return null;
+      const locationText = normalizeText(`${eventItem.name} ${eventItem.location}`);
+      if (locationText.includes("ufra") || locationText.includes("universidade federal rural")) return 0;
+      if (locationText.includes("centro") || locationText.includes("super mercado") || locationText.includes("supermercado")) return 2;
+      return null;
+    }
+
     function originCoordinates() {
-      if (userLocation) return { ...userLocation, precision: "gps" };
       const city = document.getElementById("municipality").value;
       const cityCoordinate = coordinatesForCity(city);
+      if (userLocation && cityCoordinate) {
+        const distanceFromSelectedCity = haversineKm(userLocation, cityCoordinate);
+        if (distanceFromSelectedCity <= 30) {
+          return { ...userLocation, precision: "gps" };
+        }
+      }
+      if (userLocation && !cityCoordinate) return { ...userLocation, precision: "gps" };
       return cityCoordinate ? { ...cityCoordinate, precision: "cidade" } : null;
+    }
+
+    function isUsingCurrentGps() {
+      return originCoordinates()?.precision === "gps";
     }
 
     function haversineKm(a, b) {
@@ -1311,7 +1346,17 @@
     }
 
     function normalizeText(value) {
-      return String(value || "").trim().toLowerCase();
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/gi, " ")
+        .trim()
+        .toLowerCase();
+    }
+
+    function canonicalCityName(city) {
+      const normalized = normalizeText(city);
+      return cityAliases[normalized] || city;
     }
 
     function eventDistance(eventItem) {
@@ -1323,8 +1368,11 @@
       const origin = originCoordinates();
       const destination = coordinatesForEvent(eventItem);
 
-      if (!userLocation && normalizeText(selectedCity) === normalizeText(eventItem.city) && destination?.precision === "cidade") {
-        return { km: 0, source: "mesma-cidade" };
+      if (canonicalCityName(selectedCity) === canonicalCityName(eventItem.city) && destination?.precision === "cidade") {
+        const hintedDistance = localDistanceHint(eventItem);
+        return hintedDistance === null
+          ? { km: 0, source: "mesma-cidade" }
+          : { km: hintedDistance, source: "mesma-cidade-aproximada" };
       }
 
       if (origin && destination) {
@@ -1336,18 +1384,18 @@
         };
       }
 
-      if (normalizeText(selectedCity) === normalizeText(eventItem.city)) {
+      if (canonicalCityName(selectedCity) === canonicalCityName(eventItem.city)) {
         return { km: 0, source: "mesma-cidade" };
       }
 
       return {
-        km: cityDistances[selectedCity]?.[eventItem.city] ?? Number(eventItem.distance || 0),
+        km: cityDistances[canonicalCityName(selectedCity)]?.[canonicalCityName(eventItem.city)] ?? Number(eventItem.distance || 0),
         source: "tabela"
       };
     }
 
     function routeOriginLabel() {
-      return userLocation ? "Sua localização atual" : document.getElementById("municipality").value;
+      return isUsingCurrentGps() ? "Sua localização atual" : document.getElementById("municipality").value;
     }
 
     function distanceSourceLabel(item) {
@@ -1357,6 +1405,7 @@
         "cidade-local": "Cidade escolhida até o local exato",
         "cidade-cidade": "Entre cidades",
         "mesma-cidade": "Mesma cidade",
+        "mesma-cidade-aproximada": "Distância local aproximada",
         "tabela": "Estimativa por cidade"
       };
       return labels[item.distanceSource] || "Estimativa";
@@ -1365,9 +1414,15 @@
     function updateCurrentLocationStatus() {
       const status = document.getElementById("currentLocationStatus");
       if (!status) return;
-      status.textContent = userLocation
-        ? `Localização atual ativa (${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}).`
-        : "Sem localização atual. O cálculo usa a cidade selecionada.";
+      if (!userLocation) {
+        status.textContent = "Sem localização atual. O cálculo usa a cidade selecionada.";
+        return;
+      }
+      if (!isUsingCurrentGps()) {
+        status.textContent = `GPS recebido (${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}) está longe da cidade selecionada. Usando a cidade selecionada no cálculo.`;
+        return;
+      }
+      status.textContent = `Localização atual ativa (${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}).`;
     }
 
     function useCurrentLocation() {
